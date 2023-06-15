@@ -1,0 +1,658 @@
+---
+title: "Introduction to Point Pattern Analysis"
+output:
+  html_document:
+    df_print: paged
+---
+
+Cargo librerias
+
+```{r}
+# spatstat.explore y apatstat.model REEMPLAZAN a spatstat.core
+#require(devtools)
+#install_version("spatstat.
+#core", version = "2.0.0", repos = "http://cran.us.r-project.org")
+library(spatstat.core)
+library(plotly)
+```
+
+Principio de Aceptacion-Rechazo para un Proceso Binomial
+
+```{r}
+# Graficacion
+cuadri <- function(x, y){sqrt(x^2+y^2)/sqrt(8)} # Funcion de intensidad, toma valores entre 0 y 1
+n<-10 # cant de datos
+x <- y <- seq(0, 2, length= n)
+xx<-rep(x,n)
+yy<-rep(y,rep(n,n))
+cbind(xx,yy) # grilla en el soporte
+z <- outer(x, y, cuadri) # intensidad calculada en cada punto de grilla
+u<-runif(n*n) # puntos aleatorios x y
+graf<-persp(x, y, z,theta = 65,phi=25,zlab="u")
+cumplen<-(u<z) # restricción para simular bajo la intensidad
+points(trans3d(xx, yy, u,pmat=graf), col = 2+cumplen, pch = 16)
+#  Simulacion
+set.seed(1) # fijo la semilla
+cant<-1000 # cant de obs
+x<-runif(cant,0,2) # genero x entre 0 y 2
+y<-runif(cant,0,2) # genero y entre 0 y 2
+u<-runif(cant,0,1) # generu u entre 0 y 1
+z<-cuadri(x,y) # evaluo en la funcion de intensidad
+cumplen<-(u<z) # Restriccion
+sum(cumplen) # cuantos quedan
+# Grafico 100 casos
+par(pty="s")
+plot(x[cumplen][1:100],y[cumplen][1:100],xlab = "",ylab="",xaxt='n',yaxt='n')
+# Grafico todos los casos
+par(pty="s")
+plot(x[cumplen],y[cumplen],xlab = "",ylab="",xaxt='n',yaxt='n')
+
+```
+
+Simulacion de Complete Spatial Randomness (CSR) o Independent Random Process (IRP)
+Funciones de spatstat,core
+(Uniform) Binomial Point Process
+
+```{r}
+set.seed(1)
+cant<-100
+sim.BPP<-runifpoint(cant)
+#class(sim.BPP)
+plot(sim.BPP)
+set.seed(2)
+sim.BPP<-runifpoint(cant)
+plot(sim.BPP)
+# muchas realizaciones
+sim.BPP<-runifpoint(cant,nsim = 6)
+plot(sim.BPP)
+class(sim.BPP)
+```
+
+Proceso de poisson homogeneo
+
+```{r}
+set.seed(1)
+lambda<-100
+sim.CSR<-rpoispp(lambda)
+plot(sim.CSR,main = paste("Poisson Homogeneo lambda =",lambda))
+set.seed(2)
+lambda<-100
+sim.CSR<-rpoispp(lambda)
+plot(sim.CSR,main = paste("Poisson Homogeneo lambda =",lambda))
+```
+
+Proceso de poisson INhomogeneo
+
+```{r}
+set.seed(1)
+sim.INHa <- rpoispp(function(x,y) {800*(x-0.5)^2 + 800*(y-0.5)^2},nsim=1)
+plot(sim.INHa)
+set.seed(1)
+sim.INHb <- rpoispp(function(x,y) {200-800*(x-0.5)^2 + 200-800*(y-0.5)^2},nsim=1)
+plot(sim.INHb)
+```
+
+Procesos de Superposición (Poisson)
+
+```{r}
+# a lo bruto
+plot(sim.INHa,type="n",main="Superposición")
+points(sim.INHa,col="blue")
+points(sim.INHb,col="red")
+# mas sofisticado
+super<-superimpose(sim.INHa,sim.INHb) # superposicion de ppps
+plot(super)
+```
+
+
+Analisis de Concentracion PP Homogeneo
+
+```{r}
+# El proceso CSR
+sim.CSR
+plot(sim.CSR)
+# Quadrat Count
+Q <- quadratcount(sim.CSR, nx= 4, ny=4)
+plot(sim.CSR, pch=20, cols="grey70", main=NULL)  # Plot points
+plot(Q, add=TRUE)  # Add quadrat grid
+# Quadrat Density
+Q.d <- intensity(Q)
+plot(intensity(Q, image=TRUE), main=NULL, las=1)  # Plot density raster
+plot(sim.CSR, pch=1, cex=0.01, col="grey", add=TRUE)  # Add points
+```
+
+Test de uniformidad de distribucion PP Homogeneo
+
+```{r}
+QT <- quadrat.test(sim.CSR, nx=4, ny=4)
+QT
+plot(QT)
+```
+Analisis de Concentracion PP InHomogeneo
+
+```{r}
+# Quadrat Count
+Q <- quadratcount(sim.INHa, nx= 4, ny=4)
+plot(sim.INHa, pch=20, cols="grey70", main=NULL)  # Plot points
+plot(Q, add=TRUE)  # Add quadrat grid
+# Quadrat Density
+Q.d <- intensity(Q)
+plot(intensity(Q, image=TRUE), main=NULL, las=1)  # Plot density raster
+plot(sim.INHa, pch=1, cex=0.01, col="grey", add=TRUE)  # Add points
+```
+Test de uniformidad de distribucion PP InHomogeneo
+
+```{r}
+QT <- quadrat.test(sim.INHa, nx=4, ny=4)
+QT
+plot(QT)
+```
+
+Proceso de Thomas
+
+```{r}
+par(mfrow=c(2,2))
+par(mar=c(1,1,1,1))
+set.seed(1)
+inten<-30
+disper<-0.02
+mu<-10
+sim.THO <- rThomas(inten,disper,mu)
+plot(sim.THO,main=paste("Lambda=",inten,"Mu=",mu,"Sigma=",disper))
+set.seed(1)
+inten<-30
+disper<-0.05
+mu<-10
+sim.THO <- rThomas(inten,disper,mu)
+plot(sim.THO,main=paste("Lambda=",inten,"Mu=",mu,"Sigma=",disper))
+set.seed(1)
+inten<-10
+disper<-0.02
+mu<-30
+sim.THO <- rThomas(inten,disper,mu)
+plot(sim.THO,main=paste("Lambda=",inten,"Mu=",mu,"Sigma=",disper))
+set.seed(1)
+inten<-10
+disper<-0.05
+mu<-30
+sim.THO <- rThomas(inten,disper,mu)
+plot(sim.THO,main=paste("Lambda=",inten,"Mu=",mu,"Sigma=",disper))
+par(mfrow=c(1,1))
+```
+
+
+Proceso de Secuencial Inhibicion Simple (SSI)
+
+```{r}
+par(mfrow=c(2,2))
+par(mar=c(1,1,1,1))
+set.seed(1)
+delta<-0.01
+sim.SSI <- rSSI(delta,100)
+plot(sim.SSI,main=paste("n=100 delta=",delta))
+set.seed(1)
+delta<-0.05
+sim.SSIa <- rSSI(delta,100)
+plot(sim.SSIa,main=paste("n=100 delta=",delta))
+set.seed(1)
+delta<-0.1
+sim.SSI <- rSSI(delta,100)
+plot(sim.SSI,main=paste("n=100 delta=",delta))
+set.seed(1)
+delta<-0.2
+sim.SSIb <- rSSI(delta,100)
+plot(sim.SSIb,main=paste("n=100 delta=",delta))
+
+```
+
+Procesos de COX
+
+```{r}
+#require(devtools)
+#install_version("RandomFieldsUtils", version = "1.0.11", repos = "http://cran.us.r-project.org")
+
+#install_version("RandomFields", version = "3.3.10", repos = "http://cran.us.r-project.org")
+
+library(RandomFields)
+library(RandomFieldsUtils)
+# Defino el campo medio de la funcion de intensidad
+m <- as.im(function(x, y){5 - 1.5 * (x - 0.5)^2 + 2 * (y - 0.5)^2}, W=owin())
+class(m)
+plot(m)
+# Genero un Proceso de Cox Log Gausiano a partir del campo medio generado previamente
+X <- rLGCP("gauss", m, var=0.15, scale =0.5)
+# Grafico del campo aleatorio + la realizacion del proceso
+plot(attr(X, "Lambda"))
+points(X)
+
+# Probemos tra ventana
+#
+ho <- owin(poly=list(list(x=c(0,2,1,0), y=c(0,0.3,1,0.8)),
+                       list(x=c(0.6,0.4,0.4,0.6), y=c(0.2,0.2,0.4,0.4))))
+
+m <- as.im(function(x, y){5 - 1.5 * (x - 0.5)^2 + 2 * (y - 0.5)^2}, W=ho)
+plot(m)  
+
+```
+
+
+La Funcion G y F en CSR
+
+```{r}
+par(mfrow=c(1,3))
+plot(sim.CSR)
+env.CSR <- envelope(sim.CSR, fun = Gest, nsim = 200,nrank=5)
+plot(env.CSR)
+env.CSR <- envelope(sim.CSR, fun = Fest, nsim = 200,nrank=5)
+plot(env.CSR)
+par(mfrow=c(1,1))
+
+```
+
+La Funcion G y F en Thomas (Concentracion)
+
+```{r}
+par(mfrow=c(1,3))
+plot(sim.THO)
+env.THO <- envelope(sim.THO, fun = Gest, nsim = 200,nrank=5)
+plot(env.THO)
+env.THO <- envelope(sim.THO, fun = Fest, nsim = 200,nrank=5)
+plot(env.THO)
+par(mfrow=c(1,1))
+
+```
+La Funcion G y F en SSI (Regularidad)
+
+```{r}
+par(mfrow=c(1,3))
+sim.SSI<-sim.SSIa
+plot(sim.SSI)
+env.SSI <- envelope(sim.SSI, fun = Gest, nsim = 200,nrank=5)
+plot(env.SSI)
+env.SSI <- envelope(sim.SSI, fun = Fest, nsim = 200,nrank=5)
+plot(env.SSI)
+par(mfrow=c(1,1))
+
+```
+
+La Funcion G y F en CSR
+
+```{r}
+par(mfrow=c(1,3))
+plot(sim.CSR)
+env.CSR <- envelope(sim.CSR, fun = Kest, nsim = 200,nrank=5)
+plot(env.CSR)
+env.CSR <- envelope(sim.CSR, fun = Lest, nsim = 200,nrank=5)
+plot(env.CSR, . -r ~ r)
+par(mfrow=c(1,1))
+
+```
+
+La Funcion K y L en Thomas
+
+```{r}
+par(mfrow=c(1,3))
+plot(sim.THO)
+env.THO <- envelope(sim.THO, fun = Kest, nsim = 200,nrank=5)
+plot(env.THO)
+env.THO <- envelope(sim.THO, fun = Lest, nsim = 200,nrank=5)
+plot(env.THO, . -r ~ r)
+par(mfrow=c(1,1))
+
+```
+La Funcion K y L en SSI
+
+```{r}
+par(mfrow=c(1,3))
+sim.SSI<-sim.SSIa
+plot(sim.SSI)
+env.SSI <- envelope(sim.SSI, fun = Kest, nsim = 200,nrank=5)
+plot(env.SSI)
+env.SSI <- envelope(sim.SSI, fun = Lest, nsim = 200,nrank=5)
+plot(env.SSI, . -r ~ r)
+par(mfrow=c(1,1))
+```
+
+
+Fry Plots o graficos de Petterson
+
+```{r}
+par(mfrow=c(2,3))
+par(mar=c(1,1,1,1))
+plot(sim.CSR)
+plot(sim.THO)
+plot(sim.SSIb)
+fryplot(sim.CSR)
+fryplot(sim.THO)
+fryplot(sim.SSIb)
+par(mfrow=c(1,1))
+```
+
+Estimcion de la intensidad para poisson con modelo parametrico (funcion ppm)
+
+Caso Homogeneo
+
+```{r}
+# modelo homogeneo
+ajus.CSR.1<-ppm(sim.CSR~1)
+ajus.CSR.1
+# modelo inhomogeneo con tendencia espacial lineal
+ajus.CSR.2<-ppm(sim.CSR~x+y)
+ajus.CSR.2
+plot(ajus.CSR.2,pause=FALSE,superimpose = FALSE)
+plot(ajus.CSR.2,pause=FALSE,how="persp", theta=-30,phi=40,d=4)
+plot(ajus.CSR.2,pause=FALSE,how="contour", theta=-30,phi=40,d=4)
+pred2<-predict(ajus.CSR.2)
+plot(pred2)
+
+```
+
+Caso InHomogeneo
+
+```{r}
+# modelo homogeneo
+ajus.INH.1<-ppm(sim.INHa~1)
+ajus.INH.1
+# modelo cinhomogeneo on tendencia espacial lineal
+ajus.INH.2<-ppm(sim.INHa~x+y)
+ajus.INH.2
+plot(ajus.INH.2,pause=FALSE,superimpose = FALSE)
+plot(ajus.INH.2,pause=FALSE,how="persp", theta=-30,phi=40,d=4)
+plot(ajus.INH.2,pause=FALSE,how="contour", theta=-30,phi=40,d=4)
+pred2<-predict(ajus.INH.2)
+plot(pred2)
+# modelo cinhomogeneo on tendencia espacial NO lineal
+require(splines)
+#ajus.INH.3<-ppm(sim.INHa~bs(x,df=2)+bs(y,df=2),Poisson())
+
+ajus.INH.3<-ppm(sim.INHa~poly(x,2)+poly(y,2),Poisson())
+
+ajus.INH.3
+plot(ajus.INH.3,pause=FALSE,superimpose = FALSE)
+plot(ajus.INH.3,pause=FALSE,how="persp", theta=-30,phi=40,d=4)
+plot(ajus.INH.3,pause=FALSE,how="contour", theta=-30,phi=40,d=4)
+pred3<-predict(ajus.INH.3)
+plot(pred3)
+
+# ajuste con splines
+
+ajus.INH.4<-ppm(sim.INHa~bs(x,df=3)+bs(y,df=3),Poisson())
+ajus.INH.4
+plot(ajus.INH.4,pause=FALSE,superimpose = FALSE)
+plot(ajus.INH.4,pause=FALSE,how="persp", theta=-30,phi=40,d=4)
+plot(ajus.INH.4,pause=FALSE,how="contour", theta=-30,phi=40,d=4)
+pred4<-predict(ajus.INH.4)
+plot(pred4)
+
+```
+Como funciona KDE
+
+```{r}
+library(manipulate)
+x<-c(10,13,14)
+
+GrafKDE<-function(h)
+{
+plot(density(x,bw=h,from=8,to=16),main=paste("Ventana =",h),ylab="Intensidad",ylim=c(0,0.8),lwd=3,xlab="")
+points(x,c(0,0,0),pch=16,col="green")
+n1<-function(x){dnorm(x,10,h)/3}
+n2<-function(x){dnorm(x,13,h)/3}
+n3<-function(x){dnorm(x,14,h)/3}
+curve(n1, 7, 17, lwd=2, axes = FALSE, xlab = "", ylab = "",add=T,col="green",lty=3)
+curve(n2, 7, 17, lwd=2, axes = FALSE, xlab = "", ylab = "",add=T,col="green",lty=3)
+curve(n3, 7, 17, lwd=2, axes = FALSE, xlab = "", ylab = "",add=T,col="green",lty=3)
+}
+GrafKDE(0.5)
+manipulate(GrafKDE(h=h),h=slider(0.2,2,step=0.1))
+```
+
+Aplicacion de KDE a Poisson Homogeneo
+
+```{r}
+require(splancs)
+# eleccion de ventana por diggle
+mserw <- bw.diggle(sim.CSR)
+bw <- as.numeric(mserw)*3
+#
+den.CSR<-density(sim.CSR,bw)
+plot(den.CSR)
+points(sim.CSR)
+```
+
+Aplicacion de KDE a Poisson InHomogeneo
+
+```{r}
+require(splancs)
+# eleccion de ventana por diggle
+mserw <- bw.diggle(sim.INHa)
+bw <- as.numeric(mserw)*3
+#
+den.INH<-density(sim.INHa,bw)
+plot(den.INH)
+points(sim.INHa)
+```
+
+Elegiendo la ventana optima para Poisson Inhomogeneo
+
+```{r}
+require(splancs)
+require(spatstat.utils)
+#datos<-sim.CSR
+datos<-sim.INHa
+poligono<-matrix(c(0,0,0,1,1,0,1,1,0,0),4,2,byrow = T)
+Mse2d <- mse2d(as.points(datos), poligono, nsmse=50, range=1)
+#png("/home/andresfaral/Dropbox/Estadistica Espacial/KDE INH CV")
+plot(Mse2d$h,Mse2d$mse, type="l",xlab="Ventana (h)", ylab="Error Estimado")
+arrows(0.15,9,0.15,-1.5,lty=1,col="green",lwd=3)
+#dev.off()
+bw<-min(Mse2d$h)
+bw<-0.6
+den.INH<-density(datos,bw)
+png("/home/andresfaral/Documents/Estadistica Espacial/KDE INH muy grande")
+plot(den.INH)
+points(datos)
+dev.off()
+```
+
+Elegiendo la ventana optima para Thomas
+
+```{r}
+datos<-sim.THO
+poligono<-matrix(c(0,0,0,1,1,0,1,1,0,0),4,2,byrow = T)
+Mse2d <- mse2d(as.points(datos), poligono, nsmse=50, range=1)
+bw<-Mse2d$h[which.min(Mse2d$mse)] 
+#png("/home/andresfaral/Dropbox/Estadistica Espacial/KDE THO CV")
+plot(Mse2d$h,Mse2d$mse, type="l",xlab="Ventana (h)", ylab="Error Estimado")
+arrows(bw,-1,bw,-4.5,lty=1,col="green",lwd=2)
+#dev.off()
+den.THO<-density(datos,bw)
+#png("/home/andresfaral/Dropbox/Estadistica Espacial/KDE THO")
+plot(den.THO)
+points(datos)
+#dev.off()
+```
+
+Procesos Marcados
+
+```{r}
+library(gstat)
+library(lattice)
+library(sp)
+data(meuse)
+class(meuse)
+coordinates(meuse) <- c("x", "y")
+# EDA
+spplot(meuse, "zinc", do.log = T, colorkey = TRUE)
+bubble(meuse, "zinc", do.log = T, key.space = "bottom")
+# fitting
+xyplot(log(zinc) ~ sqrt(dist), as.data.frame(meuse))
+zn.lm <- lm(log(zinc) ~ sqrt(dist), meuse)
+meuse$fitted.s <- predict(zn.lm, meuse) - mean(predict(zn.lm,
+meuse))
+meuse$residuals <- residuals(zn.lm)
+spplot(meuse, c("fitted.s", "residuals"))
+```
+
+Interpolacion por IDW
+
+```{r}
+data(meuse.grid)
+class(meuse.grid)
+coordinates(meuse.grid) <- c("x", "y")
+meuse.grid <- as(meuse.grid, "SpatialPixelsDataFrame")
+idw.out <- gstat::idw(zinc ~ 1, meuse, meuse.grid, idp = 0.5)
+plot(idw.out)
+```
+Interpolacion con Modelado Lineal
+
+```{r}
+#zn.lm <- lm(log(zinc) ~ sqrt(dist), meuse)
+#zn.lm <- lm(zinc ~ sqrt(dist), meuse)
+zn.lm <- lm(zinc ~ poly(x, y, degree = 2), meuse)
+meuse.grid$pred <- predict(zn.lm, meuse.grid)
+meuse.grid$se.fit <- predict(zn.lm, meuse.grid, se.fit = TRUE)$se.fit
+plot(meuse.grid["pred"])
+#image(meuse.grid["pred"])
+```
+
+El Variograma de zinc
+
+```{r}
+hist(dist(coordinates(meuse)))
+hscat(zinc ~ 1, meuse, seq(0,2000,length.out = 10))
+#
+sel <- plot(variogram(zinc ~ 1, meuse, cloud = FALSE))
+sel
+```
+
+El Variograma de residuos
+
+```{r}
+hscat(residuals ~ 1, meuse, seq(0,2000,length.out = 10))
+#
+sel <- plot(variogram(residuals ~ 1, meuse, cloud = FALSE))
+sel
+#
+sel2<-variogram(log(zinc) ~ sqrt(dist), meuse)
+plot(sel2)
+#
+zn.lm2 <- lm(zinc ~ dist+poly(x, y, degree = 2), meuse)
+meuse$fitted2 <- predict(zn.lm2, meuse) - mean(predict(zn.lm2,
+meuse))
+meuse$residuals2 <- residuals(zn.lm2)
+hscat(residuals2 ~ 1, meuse, seq(0,2000,length.out = 10))
+#
+sel <- plot(variogram(residuals2 ~ 1, meuse, cloud = FALSE))
+sel
+
+```
+
+Procesos Marcados
+
+SIN Autocorrelacion
+
+```{r}
+require(gstat)
+#
+set.seed(1)
+sim.CSR.M<-sim.CSR
+X<-rnorm(sim.CSR.M$n)
+X<-as.numeric(scale(X))
+marks(sim.CSR.M)<-X
+sim.CSR.M
+sim.CSR.M.df<-as.data.frame(sim.CSR.M)
+sim.CSR.M.spdf<-sim.CSR.M.df
+coordinates(sim.CSR.M.spdf) <- c("x", "y") # como spatialpoints dataframe
+
+plot(sim.CSR.M)
+spplot(sim.CSR.M.spdf, colorkey = TRUE)
+
+### Vaiograma
+hscat(marks ~ 1, sim.CSR.M.spdf, seq(0,1,length.out = 11))
+variog<-variogram(marks ~ 1, sim.CSR.M.spdf)
+plot(variog,type="l")
+
+```
+
+CON Autocorrelacion
+
+A proṕosito NO uso ni gstat ni fields
+
+Genero valores al azar y luego hago muchas pasadas (pp) en las que elijo un punto al azar y modifico su marca sumandole una fracción (ff) de los valores de los (Kk) puntos cercanos
+
+```{r} 
+require(nabor) # Libreria para calcular vecinos mas cercanos 
+
+sim.CSR.M2<-sim.CSR.M
+n<-sim.CSR.M2$n
+pp<-500
+ff<-0.5
+kk<-3
+#
+coordenadas<-coords(sim.CSR.M2)
+vecinos<-knn(coordenadas,coordenadas,k=kk+1)$nn.idx[,2:(kk+1)] # busca vecinos 
+X.sac<-marks(sim.CSR.M2)
+for (i in 1:pp)
+{
+  cual<-sample(1:n,1)
+  X.sac[cual]<-X.sac[cual]+ff*mean(X.sac[vecinos[cual,]])
+}
+X.sac<-as.numeric(scale(X.sac))
+marks(sim.CSR.M2)<-X.sac
+sim.CSR.M2.df<-as.data.frame(sim.CSR.M2)
+sim.CSR.M2.spdf<-sim.CSR.M2.df
+coordinates(sim.CSR.M2.spdf) <- c("x", "y") # como spatialpoints dataframe
+
+plot(sim.CSR.M2)
+spplot(sim.CSR.M2.spdf, colorkey = TRUE)
+### Vaiograma
+hscat(marks ~ 1, sim.CSR.M2.spdf, seq(0,1,length.out = 11))
+variog<-variogram(marks ~ 1, sim.CSR.M2.spdf)
+plot(variog,type="l")
+
+```
+
+
+Indice de Moran
+
+```{r}
+require(ape)
+#
+datos<-sim.CSR.M
+datos.dists <- as.matrix(dist(cbind(sim.CSR.M$x, sim.CSR.M$y)))
+datos.dists.inv <- 1/datos.dists
+diag(datos.dists.inv) <- 0
+Moran.I(marks(datos),datos.dists.inv)
+#
+datos<-sim.CSR.M2
+datos.dists <- as.matrix(dist(cbind(sim.CSR.M$x, sim.CSR.M$y)))
+datos.dists.inv <- 1/datos.dists
+diag(datos.dists.inv) <- 0
+Moran.I(marks(datos),datos.dists.inv)
+
+```
+
+Kriging
+
+```{r}
+require(gstst)
+data(meuse.grid)
+class(meuse)
+class(meuse.grid)
+coordinates(meuse.grid) <- c("x", "y")
+
+kri.meuse<- krige(zinc~1, meuse, meuse.grid)
+class(meuse.grid)
+plot(kri.meuse)
+spplot(kri.meuse["var1.pred"])
+#
+M2.grid<-expand.grid(x=seq(0,1,length.out = 100),y=seq(0,1,length.out = 100))
+coordinates(M2.grid) <- c("x", "y")
+class(M2.grid)
+m <- vgm(.59, "Sph", 874, .04)
+kri.M2 <- krige(marks ~ 1, sim.CSR.M2.spdf,M2.grid,model=m)
+plot(kri.M2)
+plot(sim.CSR.M2)
+spplot(kri.M2["var1.pred"], colorkey = TRUE)
+```
+

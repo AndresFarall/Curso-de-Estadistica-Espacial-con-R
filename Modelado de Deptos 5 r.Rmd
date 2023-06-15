@@ -1,0 +1,583 @@
+---
+title: "Modelado de Deptos
+date: "18 de Agosto de 2021"
+output:
+  pdf_document:
+    toc: yes
+  html_notebook:
+    theme: lumen
+    toc: yes
+    toc_float: yes
+  html_document:
+    df_print: paged
+    toc: yes
+subtitle: Ejemplificacion con la base de Properati
+---
+
+
+
+###  Lectura del dataset y su estructura
+
+```{r}
+# leo el archivo ar_properties 
+library(tidyverse) # libreria para data wrangling
+datos1a <- read_csv("ar_properties.csv") # Acá completen con su propio PATH al archivo
+datos1a # veo la base
+```
+
+### Aplicando filtros
+
+Se seleccionan aquellos registros que pertenecen a Argentina y Capital Federal, cuyo precio esta en dolares (USD), el tipo de propiedad corresponde a Departamento y el tipo de operacion sea Venta. 
+
+```{r}
+datos1b <- datos1a %>% 
+                   # Me quedo con los que pertenecen a Argentina y Capital Federal
+            filter(l1 == "Argentina", 
+                   l2 == "Capital Federal", 
+                   # cuyo precio este en dolares 
+                   currency == "USD", 
+                   # propiedad tipo Departamento
+                   property_type %in% c("Departamento"),
+                   # operaciones de venta
+                   operation_type == "Venta",
+                   # acoto por precio y superficie
+                   between(surface_covered,11,500),between(price,1000,2e6)) %>% dplyr::select(id,l3,surface_covered,price,lat,lon,rooms,bathrooms,bedrooms) %>% mutate(pm2=price/surface_covered) %>% rename(precio=price,barrio=l3,sup=surface_covered,ambientes=rooms,baths=bathrooms,cuartos=bedrooms) %>% na.omit()
+# chequeo si el filtro se refleja correctamente en mi nuevo dataset datos1b
+datos1b 
+attach(datos1b) # pongo las variables en memoria
+```
+
+Cargo las librerias basicas para trabajar con datos espaciales
+
+```{r}
+library(terra)
+library(sf)
+#vignette(package = "sf")
+#vignette("sf1",package = "sf")
+library("leaflet")
+library(tmap)
+library(OpenStreetMap)
+```
+
+## Carga de Barrios CABA
+
+```{r}
+# cargo barrios
+barrios.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/barrios/")
+barrios.comp
+plot(barrios.comp)
+# me quedo solo con feature de barrio
+barrios<-barrios.comp[1]
+barrios
+plot(barrios)
+# la geometria
+barrios$geometry
+class(barrios)
+plot(barrios[1:5,])
+print(barrios.comp, n = 3)
+# union de barrios
+union._barrios<-st_union(barrios)
+union._barrios
+plot(union._barrios)
+# grafico con leaflet
+leaflet(barrios) %>% addTiles() %>% addPolygons()
+```
+## Cargo deptos como Puntos
+
+```{r}
+# transformo el dtaset a sf, con proyeccion EPSG 4326, equivalente a WGS84
+deptos.comp.sf <- datos1b %>% st_as_sf(coords = c("lon", "lat"), crs = 4326)
+deptos.comp.sf
+class(deptos.comp.sf)
+# grafico 
+plot(deptos.comp.sf)
+deptos.sf<-deptos.comp.sf[(barrio=="Caballito"|barrio=="Flores")&precio<500000&sup<250,]
+plot(deptos.sf)
+caba<-barrios[barrios$BARRIO=="CABALLITO",]
+flor<-barrios[barrios$BARRIO=="FLORES",]
+cabaflor<-st_union(caba,flor)
+test <- st_within(deptos.sf,cabaflor,sparse = FALSE)
+sum(test)
+deptos.sf<-deptos.sf[test,]
+#
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "precio", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+
+```
+
+
+
+
+
+### Moelado del precio de los Depaertamentos
+
+Moelo lineal basico
+
+```{r}
+qplot(deptos.sf$sup,deptos.sf$precio,xlab = "Superficie Cubierta",ylab="Precio en u$s") + geom_smooth()
+ajus<-lm(precio~sup,data=deptos.sf)
+summary(ajus)
+resid<-ajus$residuals
+#residuos.scal<-resid
+#residuos.scal<-scale(resid)
+residuos.scal<-sqrt(abs(resid))*sign(resid)
+#residuos.scal<-resid
+plot(residuos.scal)
+deptos.sf$residuos<-residuos.scal
+hist(deptos.sf$precio)
+```
+
+Graficoespacial de residuos
+
+```{r}
+# grafico estatico
+plot(deptos.sf["residuos"])
+# grafico interactivo
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "residuos", palette="Reds", stretch.palette = TRUE,size = 0.1,shape =21)
+#
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "residuos", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+```
+
+
+
+
+Modelo GWR (Geographically Weighted Regression)
+
+```{r}
+require(spgwr) # libreria spgwr
+deptos.spdf<-as(deptos.sf,"Spatial") # comversion a spatialpointdataframe
+# modelo GGWR
+gwr.model = gwr(precio~sup,data=deptos.spdf,bandwidth = 0.2)
+#
+summary(gwr.model$SDF)
+gwr.model
+```
+
+
+Mapa de betas y mues
+
+```{r}
+spplot(gwr.model$SDF, "sup", cex=0.8)
+spplot(gwr.model$SDF, "sup", cuts=quantile(gwr.model$SDF$sup), cex=0.8)
+#
+deptos.sf$betas<-gwr.model$SDF$sup
+deptos.sf$mues<-gwr.model$SDF$`(Intercept)`
+
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "betas", palette="Reds", stretch.palette = TRUE,size = 0.1,shape =21)
+#
+qpal <- colorQuantile("RdYlBu", deptos.sf$betas, n = 7)
+leaflet(deptos.sf) %>% addTiles() %>% addCircleMarkers(color = ~qpal(deptos.sf$betas))
+###### 
+mapa.betas<-tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "betas", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+mapa.mues<-tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "mues", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+tmap_arrange(mapa.mues,mapa.betas)
+```
+
+Mapa de Ajuste R2
+
+```{r}
+# prediccion de la muestra
+deptos.sf$R2<-gwr.model$SDF$localR2
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "R2", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+```
+
+Mapa de Prediccion de Deptos de 70 M2
+
+```{r}
+mues<-gwr.model$SDF$`(Intercept)`
+betas<-gwr.model$SDF$sup
+lasuper<-70
+pred70<-mues+betas*lasuper
+hist(pred70)
+deptos.sf$pred70<-pred70
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "pred70", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+# leaflet
+#
+qpal <- colorQuantile("RdYlBu", deptos.sf$pred70, n = 7)
+leaflet(deptos.sf) %>% addTiles() %>% addCircleMarkers(color = ~qpal(deptos.sf$pred70))
+#
+gwr.model$SDF$pred70<-pred70
+spplot(gwr.model$SDF, "pred70", cuts=quantile(gwr.model$SDF$pred70), cex=0.8)
+
+```
+
+
+
+Modelo mas Completo
+
+```{r}
+# OLS
+ajus2<-lm(precio~sup+cuartos+baths,data=deptos.sf)
+summary(ajus2)
+# GWR
+gwr.model2 = gwr(precio~sup+cuartos+baths,data=deptos.spdf,bandwidth = 0.2)
+summary(gwr.model2$SDF)
+gwr.model2
+# Prediccion
+mues2<-gwr.model2$SDF$`(Intercept)`
+betas2<-gwr.model2$SDF$sup
+betas22<-gwr.model2$SDF$cuartos
+betas23<-gwr.model2$SDF$baths
+lasuper<-70
+pred702<-mues+betas*lasuper+betas22*2+betas23*1
+hist(pred702)
+deptos.sf$pred702<-pred702
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "pred702", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+
+
+```
+
+
+
+
+# Kriging
+
+Ejemplo de juguete: Continuacion del ejemplo unidimensional
+
+Genero N datos en un espacio de dimension 2 autocorrelacionados segun su distancia
+
+```{r}
+set.seed(4) # fijo la semilla
+N<-300 # cant de datos
+x1<-runif(N) # posicion en x1
+x2<-runif(N) # posicion en x2
+X<-cbind(x1,x2)
+distan <- as.matrix(dist(X)) # matriz de distancias entre observaciones
+#distan
+phi <- 5.0 # grado de correlacion entre errores de observaciones
+V<-exp(-phi * distan) # matriz de correlaciones
+#V
+D <- chol(V) # la raiz cuadrada de la matriz de correlaciones
+#D
+E <-t(matrix(rnorm(N), ncol = N) %*% D + rep(0, rep(N, 1))) # Errores autocorrelacionaods
+#E
+# Graficacion de los errores
+plot(x1,E)
+plot(x2,E)
+
+# Relacion deterministica espacial real subyacente 
+alfa<-3 # intercept verdadero
+beta1<-2 # coef1 de tendencia verdadera
+beta2<-4 # coef2 de tendencia verdadera
+
+Y<-alfa+beta1*x1+beta2*x2+E # variable de interes = parte deterministica espacial + errores autocorrelacionados
+# Ajuste lineal OLS
+
+ajus.lm<-lm(Y~ x1+x2)
+summary(ajus.lm)
+# Grafico
+require(rgl)
+#plot3d(ajus.lm,size=15,col="blue")
+# grafico bueno
+predichos2<-fitted.values(ajus.lm)
+coefs <- coef(ajus.lm)
+a <- coefs["x1"]
+b <- coefs["x2"]
+cc <- -1
+d<- coefs["(Intercept)"]
+
+par3d(windowRect = c(0, 0, 800, 800)) # make the window large
+par3d(zoom = 1.1) # larger values make the image smaller
+#plot3d(datos,col=colores[clases],size=2)
+plot3d(x1,x2,Y, 
+       type="s", size=1,col="red",pch="16", xlab="x1", 
+       ylab="x2", zlab="Y")
+planes3d(a, b, cc, d,  col = 'green', alpha = 1.0)
+#plot3d(x1,x2,predichos2, type="s", size=1,
+#       col="pink",pch="16",  xlab="x1", 
+#       ylab="x2", zlab="Y",add=T)
+require(sp)
+# convierto los datos a dataframe
+datos.df<-data.frame(x1=x1,x2=x2,Y=Y,E)
+datos.df
+# conversion a spatialpointdataframe
+datos.spdf<-datos.df
+coordinates(datos.spdf)= ~ x1+x2
+datos.spdf
+plot(datos.spdf,cex=0.001)
+points(datos.spdf,cex=Y/4)
+spplot(datos.spdf)
+bubble(datos.spdf, zcol='Y', fill=FALSE)
+# Grafico espacial de residuos
+residuos<-ajus.lm$residuals
+datos.spdf$residuos<-residuos
+spplot(datos.spdf["residuos"])
+#
+spplot(datos.spdf["E"])
+
+# Grafico simultaneo de Y versus x1 y x2
+require(lattice)
+xyplot(Y~ x1+x2,datos.df,allow.multiple = T)
+```
+
+Voronoi Interpolation
+
+```{r}
+library(deldir)
+tesselation <- deldir(x1, x2)
+tiles <- tile.list(tesselation)
+# Voronoi Tesselation and tiles
+plot(tiles, pch = 19,cex=0.2,close=T,col.pta="red",xlab="X1",ylab="X2")
+cant.col<-5
+#fcol <- topo.colors(cant.col)[cut(Y,cant.col,include.lowest=TRUE)]
+cortes<-cut(Y,cant.col,include.lowest=TRUE)
+pale <- colorRampPalette(c("blue", "red"))(cant.col)[cortes]
+plot(tiles, showpoints=FALSE,close=T,fillcol=pale)
+legend("bottomright", legend = levels(unique(cortes)), col =pale, pch = 19, bty = "n")
+#
+plot(tiles, pch = 19,
+     fillcol = hcl.colors(50, "Purple-Yellow"))
+#
+#library(whitebox)
+#wbt_natural_neighbour_interpolation()
+
+```
+
+
+Indice de Moran
+
+```{r}
+require(ape)
+#
+datos.dists <- as.matrix(dist(cbind(x1, x2)))
+datos.dists.inv <- 1/datos.dists
+diag(datos.dists.inv) <- 0
+Mor.Y<-Moran.I(as.vector(Y),datos.dists.inv,scaled = T)
+Mor.E<-Moran.I(as.vector(E),datos.dists.inv,scaled = T)
+str(Mor.Y)
+# local moran, a mano
+LM<-rep(NA,length(E))
+for (i in 1:length(E))
+{
+LM[i]<-(E[i]-mean(E))/var(E)*sum((E-mean(E))*datos.dists.inv[i,])/sum(datos.dists.inv)
+  
+}
+summary(LM)
+sum(LM)
+LM2<-scale(LM)
+summary(LM2)
+plot(LM2)
+datos.spdf2<-cbind(datos.df,LM=LM)
+coordinates(datos.spdf2)= ~ x1+x2
+
+spplot(datos.spdf2["LM"])
+```
+Kriging a Datos de Juguete
+
+```{r}
+require(gstat)
+# scatterplots laggeados
+# sin tendencia
+#hscat(Y ~ 1, datos.spdf, (0:12)/12)
+# con tendencia
+hscat(residuos ~ 1, datos.spdf, (0:12)/12)
+# cloud variogram sin tendencia (FALSO, porque el proceso NO es estacionario)
+#plot(variogram(Y~1, data=datos.spdf, cloud=TRUE))
+# cloud variogram con tendencia (VERDADERO)
+plot(variogram(Y~x1+x2, data=datos.spdf, cloud=TRUE))
+# sample variogram sin tendencia (FALSO, porque el proceso NO es estacionario)
+#vari1<-variogram(Y~1, data=datos.spdf,cutoff=1,width=0.025)
+#vari1
+#plot(vari1)
+# sample variogram con tendencia (VERDADERO)
+vari2<-variogram(Y~x1+x2, data=datos.spdf,cutoff=1,width=0.05)
+plot(vari2)
+# ajustamos un modelo de variograma
+vari2.fit <- fit.variogram(vari2, model=vgm(psill  =0.8, "Sph",  nugget = 0,range = 0.4),fit.method = 1) # ajuste
+vari2.fit
+# grafico del ajuste
+plot(vari2,vari2.fit)
+# kriging
+cant<-50
+grilla<-expand.grid(x1=seq(0,1,length.out = cant),x2=seq(0,1,length.out = cant))
+coordinates(grilla)<- ~ x1+x2
+plot(datos.spdf,pch="o",col="green")
+points(grilla,pch="+")
+
+# kriging
+kri.datos <- krige(Y ~ x1 + x2, datos.spdf, grilla, model=vari2.fit)
+kri.datos
+# visualizacion
+require(tidyverse)
+require(scales)
+kri.datos %>% as.data.frame %>%
+  ggplot(aes(x=x1, y=x2)) + geom_tile(aes(fill=var1.pred)) + coord_equal() +
+  scale_fill_gradient(low = "yellow", high="red") +
+  scale_x_continuous(labels=comma) + scale_y_continuous(labels=comma) +
+  theme_bw()
+# visualizacion 
+gridded(kri.datos)<-TRUE
+class(kri.datos)
+Y.sca<-scale(datos.spdf$Y)-min(scale(datos.spdf$Y))+0.1
+# mapa de prediccion (interpolacion)
+plot(kri.datos["var1.pred"])
+points(datos.spdf,cex=Y.sca/2)
+# mapa de varianzas
+plot(kri.datos["var1.var"])
+points(datos.spdf,cex=Y.sca/2)
+#
+kri.datos2 <- krige(Y ~ x1 + x2, datos.spdf, grilla, model=vari2.fit)
+xx1<-seq(0,1,length.out = cant)
+xx2<-seq(0,1,length.out = cant)
+yy<-matrix(kri.datos2$var1.pred,nrow=cant)
+fcol <- topo.colors(10)[cut(yy[-1,-1],10,include.lowest=TRUE)]
+persp3d(xx1,xx2,yy,theta=-60, phi=40, col=fcol)
+points3d(x1,x2,Y,size=13)
+# Estimadores de tendencia
+kri.datos3 <- gstat(NULL,"Y",Y ~ x1 + x2,datos.spdf, model=vari2.fit)
+prediccion<-predict(kri.datos3,grilla,BLUE=T) 
+summary(prediccion)
+gridded(prediccion)<-TRUE
+plot(prediccion["Y.pred"])
+contour(prediccion, add = TRUE, drawlabels = FALSE,col="cyan")
+#
+grilla.canon<-expand.grid(x1=c(0,1),x2=c(0,1))
+coordinates(grilla.canon)<- ~ x1+x2
+pred.coef<-predict(kri.datos3,grilla.canon,BLUE=T) 
+lospred<-pred.coef$Y.pred
+# beta1
+lospred[2]-lospred[1]
+# beta2
+lospred[3]-lospred[1]
+
+```
+
+IDW Inverse Distance Weighting
+
+Ejemplo de juguete
+
+
+```{r}
+cant<-50
+grilla<-expand.grid(x1=seq(0,1,length.out = cant),x2=seq(0,1,length.out = cant))
+coordinates(grilla)<- ~ x1+x2
+
+# parametro k=0.5
+datos.idw<-gstat::idw(Y~ 1,datos.spdf,grilla,idp=0.5)
+gridded(datos.idw)<-TRUE
+image(datos.idw)
+points(datos.spdf,cex=Y.sca/3)
+contour(datos.idw, add = TRUE, drawlabels = FALSE,col="cyan")
+# parametro k=0.5
+datos.idw<-gstat::idw(Y~ 1,datos.spdf,grilla,idp=2.5)
+gridded(datos.idw)<-TRUE
+image(datos.idw)
+points(datos.spdf,cex=Y.sca/3)
+contour(datos.idw, add = TRUE, drawlabels = FALSE,col="cyan")
+# parametro k=0.1
+datos.idw<-gstat::idw(Y~ 1,datos.spdf,grilla,idp=0.1)
+gridded(datos.idw)<-TRUE
+image(datos.idw)
+points(datos.spdf,cex=Y.sca/3)
+contour(datos.idw, add = TRUE, drawlabels = FALSE,col="cyan")
+
+```
+
+Aplicacion a Properati
+
+Kriging a Datos Reales, Deptos de Properati
+
+```{r}
+require(gstat)
+
+# conversion de deptos.sf a spatialpointsdataframe
+
+deptos.spdf<-as(deptos.sf,"Spatial") # comversion a spatialpointdataframe
+deptos.spdf<-remove.duplicates(deptos.spdf, zero = 0.0) # remuevo puntos superpuestos
+deptos.df.red<-data.frame(deptos.spdf$precio,deptos.spdf$sup,deptos.spdf$coords.x1,deptos.spdf$coords.x2) # data frame con la variables
+# Visualizo los ddeptos
+tmap_mode('view') + tm_shape(deptos.spdf) + tm_dots(col = "precio", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+
+# Re-expreso los precios en 100.000, para facilitar las visualizaciones
+deptos.spdf$precio<-deptos.spdf$precio/100000
+raster::crs(deptos.spdf)
+proj4string(deptos.spdf)
+# contenido
+coordinates(deptos.spdf)
+bbox(deptos.spdf)
+plot(deptos.spdf)
+# calculo del variograma muestral
+# cloud
+plot(variogram(precio~sup+coords.x1+coords.x2, data=deptos.spdf, cloud=TRUE))
+# variogram
+#deptos.vgm <- variogram(precio~poly(coords.x1,2)+poly(coords.x2,2)+sup, deptos.spdf,width=0.05,cutoff=3)
+#deptos.vgm <- variogram(precio~sup, deptos.spdf,width=0.05,cutoff=4)
+deptos.vgm <- variogram(precio~sup+coords.x1+coords.x2, deptos.spdf)
+plot(deptos.vgm)
+
+# lista de modelos posubles de variogramas
+#vgm()
+#show.vgms()
+# ajuste
+# Modelo de variograma mas agresivo ()
+#deptos.vgm.fit <- fit.variogram(deptos.vgm, model=vgm(1, "Exp",  1),fit.method = 1) # ajuste
+deptos.vgm.fit <- fit.variogram(deptos.vgm, model=vgm(psill  =0.25, "Exp",  nugget = 0.15,range = 0.5),fit.method = 1)
+# grafico del ajuste
+plot(deptos.vgm,deptos.vgm.fit)
+```
+
+Modelo de kriging para Deptos de Properati
+
+```{r}
+# armado de una grilla regular cubiendo al bounding box
+exten<-bbox(deptos.spdf) # bounding box
+cant<-100 # cant de puntos de la grilla por lado
+grilla<-expand.grid(coords.x1=seq(exten[1,1],exten[1,2],length.out=cant),coords.x2=seq(exten[2,1],exten[2,2],length.out = cant))
+lasuper2<-70 # superficie a predecir
+grilla<-cbind(grilla,sup=rep(lasuper2,cant*cant)) # agrego la superf a ser predicha
+#head(grilla)
+coordinates(grilla) <- ~ coords.x1 + coords.x2 # conversion a spatial object 
+proj4string(grilla)<-proj4string(deptos.spdf) # fuerzo la misma proyeccion que los datos
+grilla
+# Veo la grilla
+plot(deptos.spdf[,"precio"],cex=0.1)
+points(grilla,cex=3)
+#################
+# Aplico KRIGING
+################
+kri.deptos <- krige(precio ~ sup + coords.x1 + coords.x2, locations=deptos.spdf, newdata=grilla, model=deptos.vgm.fit)
+summary(kri.deptos)
+plot(kri.deptos)
+# visualizacion: mapa de predicciones en la grilla GGPLOT
+require(tidyverse)
+# limite geografico de los 2 barrios
+cabaflor.coord<-st_coordinates(cabaflor)[,1:2] # coordenadas de los 2 barios
+dimnames(cabaflor.coord)[[2]]<-c("coords.x1","coords.x2")
+cabaflor.coord.df<-as.data.frame(cabaflor.coord)
+plot(cabaflor.coord)
+# maps de prediccion
+kri.deptos %>% as.data.frame %>%
+  ggplot(aes(x=coords.x1, y=coords.x2)) + geom_tile(aes(fill=var1.pred)) + coord_equal() +
+  scale_fill_gradient(low = "yellow", high="red") +
+  scale_x_continuous(labels=comma) + scale_y_continuous(labels=comma) +
+  theme_bw() + geom_polygon(data=cabaflor.coord.df,aes(x=coords.x1, y=coords.x2),colour="black",fill=NA)
+# conversion a pixel dataframe
+kri.deptos.grid<-kri.deptos
+gridded(kri.deptos.grid)<-TRUE
+class(kri.deptos.grid)
+# mapa de prediccion (interpolacion) con SP
+plot(kri.deptos.grid["var1.pred"])
+lines(cabaflor.coord)
+points(deptos.spdf,cex=0.2)
+# mapa de varianzas
+plot(kri.deptos["var1.var"])
+lines(cabaflor.coord)
+points(datos.spdf,cex=0.2)
+# Grafico 3D
+xx1<-seq(exten[1,1],exten[1,2],length.out=cant)
+xx2<-seq(exten[2,1],exten[2,2],length.out=cant)
+yy<-matrix(kri.deptos.grid$var1.pred,nrow=cant)
+fcol <- topo.colors(10)[cut(yy[-1,-1],10,include.lowest=TRUE)]
+persp3d(xx1,xx2,yy,theta=-60, phi=40, col=fcol)
+# Estimadores de tendencia y mapa
+kri.datos3 <- gstat(NULL,"precio",precio ~ sup + coords.x1 + coords.x2,deptos.spdf, model=deptos.vgm.fit)
+prediccion<-predict(kri.datos3,grilla,BLUE=T) 
+summary(prediccion)
+gridded(prediccion)<-TRUE
+plot(prediccion["precio.pred"])
+lines(cabaflor.coord)
+contour(prediccion, add = TRUE, drawlabels = FALSE,col="cyan")
+# Visualizo lsuperficie de prediccion en el mapa
+tmap_mode('view') + tm_shape(kri.deptos.grid) + tm_raster(col = "var1.pred",alpha = 0.6,style="cont",palette = c("red","white","green"))
+
+```
+

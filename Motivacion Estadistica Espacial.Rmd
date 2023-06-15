@@ -1,0 +1,52 @@
+---
+title: "Motivacion Estadistica Espacial"
+output: html_notebook
+---
+
+Libreria nlme con la funcion gls, para ajustar mpdelos lineales generalizados
+
+```{r}
+library(nlme)
+```
+
+Genero N datos en un espacio de dimension 1 autocorrelacionados segun su distancia
+
+```{r}
+set.seed(3) # fijo la semilla
+N<-100 # cant de datos
+X<-runif(N) # posicion en la recta de las observaciones
+#X
+distan <- as.matrix(dist(X)) # matriz de distancias entre observaciones
+#distan
+phi <- 5.0 # grado de correlacion entre errores de observaciones
+V<-exp(-phi * distan) # matriz de correlaciones
+#V
+D <- chol(V) # la raiz cuadrada de la matriz de correlaciones
+#D
+E <-t(matrix(rnorm(N), ncol = N) %*% D + rep(0, rep(N, 1))) # Errores autocorrelacionaods
+#E
+# Graficacion de los errores
+plot(X,E)
+# Relacion deterministica espacial real subyacente 
+alfa<-3 # intercept verdadero
+beta<-2 # coef de tendencia verdadera
+Y<-alfa+beta*X+E # variable de interes = parte deterministica espacial + errores autocorrelacionados
+# Ajuste lineal OLS
+
+ajus.lm<-lm(Y~ X)
+summary(ajus.lm)
+
+# Ajuste Lineal GLS
+
+ajus.gls<-gls(Y~ X,correlation = corExp(form =~ distan))
+summary(ajus.gls)
+coefficients(ajus.gls)
+
+# Graficacion
+
+plot(X,Y,cex=1.5)
+abline(alfa,beta,col="blue",lwd=3)
+abline(ajus.lm,col="red",lwd=3)
+abline(ajus.gls,col="green",lwd=3)
+```
+

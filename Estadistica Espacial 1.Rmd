@@ -1,0 +1,70 @@
+---
+title: "Curso de Estadistica Espacial"
+output:
+  html_document:
+    df_print: paged
+---
+
+Introduccion a la Estadistica Espacial
+
+Referencia: Spatial Data Science with R and “terra”
+Link: https://rspatial.org/terra/index.html
+
+Cargo las librerias basicas
+
+```{r}
+library(terra)
+library(sf)
+library("leaflet")
+```
+
+### Datos Vectoriales
+
+## Puntos
+
+```{r}
+longitude <- c(-116.7, -120.4, -116.7, -113.5, -115.5, -120.8, -119.5, -113.7, -113.7, -110.7)
+latitude <- c(45.3, 42.6, 38.9, 42.1, 35.7, 38.9, 36.2, 39, 41.6, 36.9)
+lonlat <- cbind(longitude, latitude)
+precipvalue <- (1:10)*10
+df <- data.frame(ID=1:nrow(lonlat), precip=precipvalue)
+crdref <- "+proj=longlat +datum=WGS84"
+pts <- vect(lonlat, atts=df, crs=crdref)
+pts
+plot(pts)
+```
+
+## Poligonos
+
+```{r}
+lon <- c(-116.8, -114.2, -112.9, -111.9, -114.2, -115.4, -117.7)
+lat <- c(41.3, 42.9, 42.4, 39.8, 37.6, 38.3, 37.6)
+lonlat <- cbind(id=1, part=1, lon, lat)
+pols <- vect(lonlat, type="polygons", crs=crdref)
+pols
+plot(pols)
+```
+
+## Mapa
+
+```{r}
+plot(pols, las=1)
+plot(pols, border='blue', col='yellow', lwd=3, add=TRUE)
+points(pts, col='red', pch=20, cex=3)
+leaflet(st_as_sf(pts)) %>% addTiles()
+pols.sf <- sf::st_as_sf(pols)
+plot(pols.sf)
+
+leaflet(pols.sf) %>% addTiles() %>% addPolygons(color = "green")
+```
+
+## Carga de Barrios CABA
+
+```{r}
+barrios <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/barrios/")
+barrios
+plot(barrios)
+leaflet(barrios) %>% addTiles() %>% addPolygons(color = "green")
+
+```
+

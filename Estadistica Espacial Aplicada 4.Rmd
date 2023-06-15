@@ -1,0 +1,381 @@
+---
+title: "Estadistica Espacial Aplicada"
+author: "Andres Farall"
+date: "18 de Agosto de 2021"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+  html_notebook:
+    theme: lumen
+    toc: yes
+    toc_float: yes
+subtitle: Ejemplificacion con la base de Properati
+---
+
+
+
+###  Lectura del dataset y su estructura
+
+```{r}
+# leo el archivo ar_properties 
+library(tidyverse) # libreria para data wrangling
+datos1a <- read_csv("ar_properties.csv") # Acá completen con su propio PATH al archivo
+datos1a # veo la base
+```
+
+### Aplicando filtros
+
+Se seleccionan aquellos registros que pertenecen a Argentina y Capital Federal, cuyo precio esta en dolares (USD), el tipo de propiedad corresponde a Departamento y el tipo de operacion sea Venta. 
+
+```{r}
+datos1b <- datos1a %>% 
+                   # Me quedo con los que pertenecen a Argentina y Capital Federal
+            filter(l1 == "Argentina", 
+                   l2 == "Capital Federal", 
+                   # cuyo precio este en dolares 
+                   currency == "USD", 
+                   # propiedad tipo Departamento
+                   property_type %in% c("Departamento"),
+                   # operaciones de venta
+                   operation_type == "Venta") %>% select(id,l3,surface_covered,price,lat,lon,rooms,bathrooms,bedrooms) %>% na.omit() %>% mutate(precio=price,barrio=l3,sup=surface_covered,pm2=precio/sup,rooms,bathrooms,bedrooms) %>% na.omit()
+# chequeo si el filtro se refleja correctamente en mi nuevo dataset datos1b
+datos1b 
+attach(datos1b) # pongo las variables en memoria
+```
+
+Cargo las librerias basicas para trabajar con datos espaciales
+
+```{r}
+library(terra)
+library(sf)
+#vignette(package = "sf")
+#vignette("sf1",package = "sf")
+library("leaflet")
+library(tmap)
+library(OpenStreetMap)
+```
+
+### Datos Vectoriales
+
+## Cargo deptos como Puntos
+
+```{r}
+# transformo el dtaset a sf, con proyeccion EPSG 4326, equivalente a WGS84
+deptos.sf <- datos1b %>% st_as_sf(coords = c("lon", "lat"), crs = 4326)
+deptos.sf
+class(deptos.sf)
+# Version alternativa usando terra
+#lonlat <- cbind(datos1b$lon, datos1b$lat)
+#df <- data.frame(ID=datos1b$id, datos1b$sup)
+#crdref <- "+proj=longlat +datum=WGS84"
+#deptos <- vect(lonlat, atts=df, crs=crdref) # with terra
+#deptos.sf <- sf::st_as_sf(deptos) # conversion to sf
+#plot(pts)
+# grafico 
+plot(deptos.sf)
+plot(deptos.sf[,"l3"]) # solo el campo l3
+# con leaflet
+leaflet(deptos.sf) %>% addTiles() %>% addCircleMarkers(radius=0.2)
+# with ggplot
+ggplot() + geom_sf(data = deptos.sf, size = 0.3)
+# con tmap
+tmap_mode('view')
+qtm(deptos.sf, style = "natural")
+```
+
+## cargo calles de CABA
+
+
+```{r}
+# cargo el shape de calles de CABA
+calles.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/callejero/")
+# me quedo con algunos features
+calles<-calles.comp[,c("id","tipo_c","nom_mapa","long")]
+plot(calles)
+# selecciono solo las avenidas
+avenidas<-calles[calles$tipo_c=="AVENIDA",]
+plot(avenidas)
+nombres.ave<-avenidas$nom_mapa
+# av rivadavia 
+cuales<-grep("RIVADAVIA",nombres.ave)
+rivadavia<-avenidas[cuales,]
+plot(rivadavia)
+# largo de la ave rivadavia
+sum(rivadavia$long)
+# geometria de la ave rivadavia
+rivadavia.geo<-rivadavia$geometry
+# grafico con leaflet de avenidas
+leaflet(avenidas) %>% addTiles() %>% addPolylines()
+# grafico con leaflet de Rivadavia
+leaflet(rivadavia) %>% addTiles() %>% addPolylines()
+
+```
+
+## Carga de Barrios CABA
+
+```{r}
+# cargo barrios
+barrios.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/barrios/")
+barrios.comp
+plot(barrios.comp)
+# me quedo solo con feature de barrio
+barrios<-barrios.comp[1]
+barrios
+plot(barrios)
+# la geometria
+barrios$geometry
+class(barrios)
+plot(barrios[1:5,])
+print(barrios.comp, n = 3)
+# union de barrios
+union._barrios<-st_union(barrios)
+union._barrios
+plot(union._barrios)
+# grafico con leaflet
+leaflet(barrios) %>% addTiles() %>% addPolygons()
+```
+
+## Carga de Comunas CABA
+
+```{r}
+comunas.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/comunas/")
+comunas.comp
+plot(comunas.comp)
+comunas<-comunas.comp[1]
+plot(comunas)
+
+```
+
+Grafico de deptos, avenidas, comunas y barrios
+
+```{r}
+# todo
+leaflet() %>% addTiles() %>% addPolygons(data=barrios,color = "green") %>% addPolygons(data=comunas,color = "red") %>% addCircles(data=deptos.sf,radius=0.01) %>% addPolylines(data=avenidas,color = "black")
+# un poco
+leaflet() %>% addTiles() %>% addPolygons(data=barrios,color = "green") %>% addPolygons(data=comunas,color = "red") %>% addCircles(data=deptos.sf[1:1000,],radius=0.01) %>% addPolylines(data=rivadavia,color = "black")
+
+# barrios with ggplot
+ggplot() + geom_sf(data = deptos.sf, size = 0.3,color="grey") + geom_sf(data = barrios, aes(fill = BARRIO), alpha = 0.5) + geom_sf(data=rivadavia)
+# comunas with ggplot
+ggplot() + geom_sf(data = deptos.sf, size = 0.3,color="grey") + geom_sf(data=comunas.comp, aes(fill = COMUNAS), alpha = 0.5) + geom_sf(data=rivadavia)
+
+```
+
+
+## Manipulacion y Operacion con objetos espaciales
+
+# Operadores binarios o binary predicates
+
+Que Comuna incluye a Versalles ?
+
+```{r}
+#
+sf::sf_use_s2(FALSE)
+vers<-barrios[barrios$BARRIO=="VERSALLES",]
+com10<-comunas.comp[comunas.comp$COMUNAS==10,]
+plot(com10$geometry)
+plot(vers$geometry,add=T,col="green")
+# esta versalles en la comuna 10 ?
+st_contains(com10,vers,sparse = FALSE)
+# que barrios estan en que comunas
+test1 <- st_intersects(comunas.comp,barrios,sparse = FALSE)
+test1
+```
+
+Que deptos caen en versalles ?
+
+
+```{r}
+test2 <- st_within(deptos.sf,vers,sparse = FALSE)
+sum(test2)
+plot(com10$geometry)
+plot(vers$geometry,add=T,col="green")
+plot(deptos.sf$geometry[test2],add=T,col="blue")
+
+```
+
+Que deptos estan a menos de 100 metros de Rivadavia 
+
+```{r}
+test3 <- st_is_within_distance(deptos.sf,rivadavia,dist = 500,sparse = FALSE)
+dim(test3)
+class(test3)
+test3[1:10,1:6]
+cuales.deptos<-apply(test3,1,sum)
+sum(cuales>0)
+length(cuales.deptos)
+ggplot() + geom_sf(data = deptos.sf, size = 0.3,color="grey") + geom_sf(data = deptos.sf[cuales.deptos>0,], size = 0.5,color="blue") + geom_sf(data=rivadavia)
+
+```
+
+Combinacion de features
+
+```{r}
+# uniendo tramos de rivadavia
+rivadavia.unida<-st_combine(rivadavia)
+rivadavia.unida
+ggplot() + geom_sf(data=comunas.comp, aes(fill = COMUNAS), alpha = 0.5) + geom_sf(data=rivadavia)
+
+ggplot() + geom_sf(data=comunas.comp, aes(fill = COMUNAS), alpha = 0.5) + geom_sf(data=rivadavia.unida)
+
+# combinando barrios
+barrios.unidos<-st_combine(barrios)
+barrios.unidos
+plot(barrios.unidos)
+
+```
+
+
+Que avenidas cortan Rivadavia
+
+```{r}
+# Que avenidas cortan rivadavia
+NoRivadavia<-avenidas[avenidas$nom_mapa!="AV. RIVADAVIA",]
+test4<-st_intersects(NoRivadavia,rivadavia,sparse = FALSE)
+dim(test4)
+cuales.cortan<-apply(test4,1,sum)
+nombres.cortan<-NoRivadavia$nom_mapa[cuales.cortan>0]
+ggplot() + geom_sf(data=NoRivadavia[NoRivadavia$nom_mapa%in%nombres.cortan,],color="blue")  + geom_sf(data=rivadavia,color="red")
+
+```
+
+Que avenidas estan cerca Rivadavia
+
+```{r}
+# Que avenidas cortan rivadavia
+NoRivadavia<-avenidas[avenidas$nom_mapa!="AV. RIVADAVIA",]
+test7<-st_is_within_distance(NoRivadavia,rivadavia,dist=1000,sparse = FALSE)
+dim(test7)
+cuales.cortan<-apply(test7,1,sum)
+nombres.cortan<-NoRivadavia$nom_mapa[cuales.cortan>0]
+ggplot() + geom_sf(data=NoRivadavia[NoRivadavia$nom_mapa%in%nombres.cortan,],color="blue")  + geom_sf(data=rivadavia,color="red")
+
+```
+
+
+Que avenidas hay en Caballito
+
+```{r}
+test5<-st_intersects(barrios[barrios$BARRIO=="CABALLITO",],avenidas,sparse = FALSE)
+dim(test5)
+test5<-as.numeric(test5)
+head(test5)
+ggplot() + geom_sf(data=avenidas[test5>0,],color="blue")  + geom_sf(data = barrios[barrios$BARRIO=="CABALLITO",], aes(fill = BARRIO), alpha = 0.5)
+
+```
+
+
+Que barrios son contiguos a Caballito ?
+
+```{r}
+# falla al norte
+test6<-st_touches(barrios,barrios[barrios$BARRIO=="CABALLITO",],sparse = FALSE)
+# funciona ok
+test6<-st_is_within_distance(barrios,barrios[barrios$BARRIO=="CABALLITO",],dist=100,sparse = FALSE)
+dim(test6)
+test6<-as.numeric(test6)
+head(test6)
+ggplot() + geom_sf(data = barrios[barrios$BARRIO=="CABALLITO",], aes(fill = BARRIO), alpha = 0.5)  + geom_sf(data = barrios[test6>0,], aes(fill = BARRIO), alpha = 0.5)
+
+```
+
+
+Que deptos estan sobre avenidas ? LENTO !!!!
+
+```{r}
+# test8 <- st_is_within_distance(deptos.sf,avenidas,dist = 10,sparse = FALSE)
+# dim(test8)
+# cuales.deptos<-apply(test8,1,sum)
+# sum(cuales.deptos>0)
+# ggplot() + geom_sf(data = deptos.sf, size = 0.3,color="grey") + geom_sf(data = deptos.sf[cuales.deptos>0,], size = 0.5,color="blue") 
+
+```
+
+Cuantos deptos hay en cada barrio ?
+graficos con tmap
+
+```{r}
+require(tmap)
+deptos_in_barrios <- st_join(deptos.sf, barrios, join = st_within)
+deptos_in_barrios
+deptos_barrios_count <- count(as_tibble(deptos_in_barrios), BARRIO)
+deptos_barrios_count
+barrios_con_deptos <- left_join(barrios, deptos_barrios_count)
+barrios_con_deptos
+
+tmap_mode("view")
+tm_shape(barrios_con_deptos) +
+  tm_fill(
+    col = "n",
+    palette = "Greens",
+    style = "cont",
+    contrast = c(0.1, 1),
+    title = "Deptos por Barrio",
+    id = "boro_ct2010",
+    showNA = FALSE,
+    alpha = 0.8) +
+  tm_borders(col = "darkgray", lwd = 0.7)
+```
+
+Calculando la Capsula Convexa de los deptos
+
+```{r}
+# solo los deptos
+ggplot() + geom_sf(data=deptos.sf,size=0.1)
+deptos.sf.unidos<-st_union(deptos.sf)
+capsula<-st_convex_hull(deptos.sf.unidos)
+capsula
+ggplot()  + geom_sf(data=capsula,color="blue") + geom_sf(data=deptos.sf,size=0.1)
+
+```
+
+Calculemos las areas de los barrios
+
+```{r}
+barrios
+barrios2 <- barrios %>% mutate(AREA=st_area(barrios)) %>% arrange(-AREA)# agrego el area
+```
+
+Distancia entre barrios
+
+```{r}
+barrios2
+
+st_distance(barrios[barrios$BARRIO=="BELGRANO",],barrios[barrios$BARRIO=="FLORES",])
+st_distance(barrios[barrios$BARRIO=="CABALLITO",],barrios[barrios$BARRIO=="FLORES",])
+distan<-st_nearest_points(barrios[barrios$BARRIO=="BELGRANO",],barrios[barrios$BARRIO=="FLORES",])
+ggplot() + geom_sf(data = barrios, alpha = 0.5) + geom_sf(data = barrios[barrios$BARRIO=="FLORES",], aes(fill = BARRIO)) + geom_sf(data = barrios[barrios$BARRIO=="BELGRANO",], aes(fill = BARRIO)) + geom_sf(data=distan,col="blue")
+```
+
+
+Analisis de Espacio Verde Publico
+
+```{r}
+# cargo el shape de calles de CABA
+verde.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/espacio-verde-publico/")
+verde<-verde.comp[,"nombre"] %>% mutate(AreaVerde=st_area(verde.comp))
+# grafico con leaflet
+leaflet(verde) %>% addTiles() %>% addPolygons()
+
+```
+
+Cual es el barrio con mas Espacio Verde ?
+
+```{r}
+leaflet() %>% addTiles() %>% addPolygons(data=barrios) %>% addPolygons(data=verde,color = "green")
+inter_ba_ve<-st_intersection(barrios2,verde)
+plot(inter_ba_ve[,"AreaVerde"])
+TablaVerde<-inter_ba_ve %>% group_by(BARRIO) %>% summarise(AreaVerde=sum(AreaVerde),AreaTotal=first(AREA)) %>% mutate(PropVerde=as.numeric(AreaVerde/AreaTotal))
+ggplot(data=TablaVerde, aes(x=BARRIO, y=PropVerde,) +
+  geom_bar(stat="identity") + theme(axis.text = element_text(size = 1)) + coord_flip()
+```
+
+Estaciones de Subte
+
+```{r}
+subtes<- read_csv("/home/andresfaral/Dropbox/Estadistica Espacial/bocas-de-subte.csv") %>% rename(lon=long)
+subtes.sf <- subtes %>% st_as_sf(coords = c("lon", "lat"), crs = 4326)
+subtes.sf
+```
+

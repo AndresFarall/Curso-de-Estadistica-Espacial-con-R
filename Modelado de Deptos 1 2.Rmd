@@ -1,0 +1,334 @@
+---
+title: "Modelado de Deptos
+date: "18 de Agosto de 2021"
+output:
+  pdf_document:
+    toc: yes
+  html_notebook:
+    theme: lumen
+    toc: yes
+    toc_float: yes
+  html_document:
+    df_print: paged
+    toc: yes
+subtitle: Ejemplificacion con la base de Properati
+---
+
+
+
+###  Lectura del dataset y su estructura
+
+```{r}
+# leo el archivo ar_properties 
+library(tidyverse) # libreria para data wrangling
+datos1a <- read_csv("ar_properties.csv") # Acá completen con su propio PATH al archivo
+datos1a # veo la base
+```
+
+### Aplicando filtros
+
+Se seleccionan aquellos registros que pertenecen a Argentina y Capital Federal, cuyo precio esta en dolares (USD), el tipo de propiedad corresponde a Departamento y el tipo de operacion sea Venta. 
+
+```{r}
+datos1b <- datos1a %>% 
+                   # Me quedo con los que pertenecen a Argentina y Capital Federal
+            filter(l1 == "Argentina", 
+                   l2 == "Capital Federal", 
+                   # cuyo precio este en dolares 
+                   currency == "USD", 
+                   # propiedad tipo Departamento
+                   property_type %in% c("Departamento"),
+                   # operaciones de venta
+                   operation_type == "Venta",
+                   # acoto por precio y superficie
+                   between(surface_covered,11,500),between(price,1000,2e6)) %>% dplyr::select(id,l3,surface_covered,price,lat,lon,rooms,bathrooms,bedrooms) %>% mutate(pm2=price/surface_covered) %>% rename(precio=price,barrio=l3,sup=surface_covered,ambientes=rooms,baths=bathrooms,cuartos=bedrooms) %>% na.omit()
+# chequeo si el filtro se refleja correctamente en mi nuevo dataset datos1b
+datos1b 
+attach(datos1b) # pongo las variables en memoria
+```
+
+Cargo las librerias basicas para trabajar con datos espaciales
+
+```{r}
+library(terra)
+library(sf)
+#vignette(package = "sf")
+#vignette("sf1",package = "sf")
+library("leaflet")
+library(tmap)
+library(OpenStreetMap)
+```
+
+## Carga de Barrios CABA
+
+```{r}
+# cargo barrios
+barrios.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/barrios/")
+barrios.comp
+plot(barrios.comp)
+# me quedo solo con feature de barrio
+barrios<-barrios.comp[1]
+barrios
+plot(barrios)
+# la geometria
+barrios$geometry
+class(barrios)
+plot(barrios[1:5,])
+print(barrios.comp, n = 3)
+# union de barrios
+union._barrios<-st_union(barrios)
+union._barrios
+plot(union._barrios)
+# grafico con leaflet
+leaflet(barrios) %>% addTiles() %>% addPolygons()
+```
+## Cargo deptos como Puntos
+
+```{r}
+# transformo el dtaset a sf, con proyeccion EPSG 4326, equivalente a WGS84
+deptos.comp.sf <- datos1b %>% st_as_sf(coords = c("lon", "lat"), crs = 4326)
+deptos.comp.sf
+class(deptos.comp.sf)
+# grafico 
+plot(deptos.comp.sf)
+deptos.sf<-deptos.comp.sf[(barrio=="Caballito"|barrio=="Flores")&precio<500000&sup<250,]
+plot(deptos.sf)
+caba<-barrios[barrios$BARRIO=="CABALLITO",]
+flor<-barrios[barrios$BARRIO=="FLORES",]
+cabaflor<-st_union(caba,flor)
+test <- st_within(deptos.sf,cabaflor,sparse = FALSE)
+sum(test)
+deptos.sf<-deptos.sf[test,]
+#
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "precio", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+
+```
+
+
+
+
+
+### Moelado del precio de los Depaertamentos
+
+Moelo lineal basico
+
+```{r}
+qplot(deptos.sf$sup,deptos.sf$precio,xlab = "Superficie Cubierta",ylab="Precio en u$s") + geom_smooth()
+ajus<-lm(precio~sup,data=deptos.sf)
+summary(ajus)
+resid<-ajus$residuals
+#residuos.scal<-resid
+#residuos.scal<-scale(resid)
+residuos.scal<-sqrt(abs(resid))*sign(resid)
+#residuos.scal<-resid
+plot(residuos.scal)
+deptos.sf$residuos<-residuos.scal
+hist(deptos.sf$precio)
+```
+
+Graficoespacial de residuos
+
+```{r}
+# grafico estatico
+plot(deptos.sf["residuos"])
+# grafico interactivo
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "residuos", palette="Reds", stretch.palette = TRUE,size = 0.1,shape =21)
+#
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "residuos", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+```
+
+
+
+
+Modelo GWR (Geographically Weighted Regression)
+
+```{r}
+require(spgwr) # libreria spgwr
+deptos.spdf<-as(deptos.sf,"Spatial") # comversion a spatialpointdataframe
+# modelo GGWR
+gwr.model = gwr(precio~sup,data=deptos.spdf,bandwidth = 0.2)
+#
+summary(gwr.model$SDF)
+gwr.model
+```
+
+
+Mapa de betas y mues
+
+```{r}
+spplot(gwr.model$SDF, "sup", cex=0.8)
+spplot(gwr.model$SDF, "sup", cuts=quantile(gwr.model$SDF$sup), cex=0.8)
+#
+deptos.sf$betas<-gwr.model$SDF$sup
+deptos.sf$mues<-gwr.model$SDF$`(Intercept)`
+
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "betas", palette="Reds", stretch.palette = TRUE,size = 0.1,shape =21)
+#
+qpal <- colorQuantile("RdYlBu", deptos.sf$betas, n = 7)
+leaflet(deptos.sf) %>% addTiles() %>% addCircleMarkers(color = ~qpal(deptos.sf$betas))
+###### 
+mapa.betas<-tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "betas", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+mapa.mues<-tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "mues", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+tmap_arrange(mapa.mues,mapa.betas)
+```
+
+Mapa de Ajuste R2
+
+```{r}
+# prediccion de la muestra
+deptos.sf$R2<-gwr.model$SDF$localR2
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "R2", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+```
+
+Mapa de Prediccion de Deptos de 70 M2
+
+```{r}
+mues<-gwr.model$SDF$`(Intercept)`
+betas<-gwr.model$SDF$sup
+lasuper<-70
+pred70<-mues+betas*lasuper
+hist(pred70)
+deptos.sf$pred70<-pred70
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "pred70", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+# leaflet
+#
+qpal <- colorQuantile("RdYlBu", deptos.sf$pred70, n = 7)
+leaflet(deptos.sf) %>% addTiles() %>% addCircleMarkers(color = ~qpal(deptos.sf$pred70))
+#
+gwr.model$SDF$pred70<-pred70
+spplot(gwr.model$SDF, "pred70", cuts=quantile(gwr.model$SDF$pred70), cex=0.8)
+
+```
+
+
+
+Modelo mas Completo
+
+```{r}
+# OLS
+ajus2<-lm(precio~sup+cuartos+baths,data=deptos.sf)
+summary(ajus2)
+# GWR
+gwr.model2 = gwr(precio~sup+cuartos+baths,data=deptos.spdf,bandwidth = 0.2)
+summary(gwr.model2$SDF)
+gwr.model2
+# Prediccion
+mues2<-gwr.model2$SDF$`(Intercept)`
+betas2<-gwr.model2$SDF$sup
+betas22<-gwr.model2$SDF$cuartos
+betas23<-gwr.model2$SDF$baths
+lasuper<-70
+pred702<-mues+betas*lasuper+betas22*2+betas23*1
+hist(pred702)
+deptos.sf$pred702<-pred702
+tmap_mode('view') + tm_shape(deptos.sf) + tm_dots(col = "pred702", palette="RdYlBu", stretch.palette = TRUE,size = 0.1,shape =21,style="cont")
+
+
+```
+
+
+# Kriging
+
+Ejemplo de juguete: Continuacion del ejemplo unidimensional
+
+```{r}
+
+```
+
+
+```{r}
+require(gstat)
+
+# conversion de deptos.sf a spatialpointsdataframe
+
+deptos.spdf<-as(deptos.sf,"Spatial") # comversion a spatialpointdataframe
+# Re-expreso los precios en 100.000, para facilitar las visualizaciones
+deptos.spdf$precio<-deptos.spdf$precio/100000
+raster::crs(deptos.spdf)
+proj4string(deptos.spdf)
+# contenido
+coordinates(deptos.spdf)
+bbox(deptos.spdf)
+plot(deptos.spdf)
+# calculo del variograma muestral
+# cloud
+#plot(variogram(precio~sup, data=deptos.spdf, cloud=TRUE))
+# variogram
+#deptos.vgm <- variogram(precio~poly(coords.x1,2)+poly(coords.x2,2)+sup, deptos.spdf,width=0.05,cutoff=3)
+#deptos.vgm <- variogram(precio~sup, deptos.spdf,width=0.05,cutoff=4)
+deptos.vgm <- variogram(precio~sup+coords.x1+coords.x2, deptos.spdf)
+plot(deptos.vgm)
+
+# lista de modelos posubles de variogramas
+#vgm()
+#show.vgms()
+# ajuste
+deptos.vgm.fit <- fit.variogram(deptos.vgm, model=vgm(1, "Exp",  1),fit.method = 1) # ajuste
+# grafico del ajuste
+plot(deptos.vgm,deptos.vgm.fit)
+```
+
+Modelo de kriging
+
+```{r}
+# armado de una grilla regular cubiendo al bounding box
+exten<-bbox(deptos.spdf)
+cant<-10
+grilla<-expand.grid(coords.x1=seq(exten[1,1],exten[1,2],length.out=cant),coords.x2=seq(exten[2,1],exten[2,2],length.out = cant))
+#head(grilla)
+coordinates(grilla) <- ~ coords.x1 + coords.x2 
+proj4string(grilla)<-proj4string(deptos.spdf)
+grilla
+#
+plot(deptos.spdf[,"precio"],cex=0.1)
+points(grilla,cex=3)
+#
+#kri.deptos <- krige(precio ~ sup, deptos.spdf, grilla)
+
+kri.deptos <- krige(precio ~ coords.x1+coords.x2, deptos.spdf, grilla, model=deptos.vgm.fit)
+plot(kri.deptos)
+```
+
+Kriging de pm2
+```{r}
+require(gstat)
+
+# conversion de deptos.sf a spatialpointsdataframe
+
+deptos.spdf<-as(deptos.sf,"Spatial") # comversion a spatialpointdataframe
+zerodist(deptos.spdf)
+deptos.spdf<-remove.duplicates(deptos.spdf, zero = 0.0)
+
+#deptos.vgm <- variogram(pm2~1, deptos.spdf)
+deptos.vgm <- variogram(pm2~coords.x1+coords.x2, deptos.spdf)
+
+plot(deptos.vgm)
+
+# lista de modelos posubles de variogramas
+#vgm()
+#show.vgms()
+# ajuste
+deptos.vgm.fit <- fit.variogram(deptos.vgm, model=vgm(40000, "Exp",  1),fit.method = 1) # ajuste
+# grafico del ajuste
+plot(deptos.vgm,deptos.vgm.fit)
+#
+exten<-bbox(deptos.spdf)
+cant<-200
+grilla<-expand.grid(coords.x1=seq(exten[1,1],exten[1,2],length.out=cant),coords.x2=seq(exten[2,1],exten[2,2],length.out = cant))
+#head(grilla)
+coordinates(grilla) <- ~ coords.x1 + coords.x2 
+proj4string(grilla)<-proj4string(deptos.spdf)
+grilla
+#
+#kri.deptos <- krige(precio ~ sup, deptos.spdf, grilla)
+
+#kri.deptos <- krige(pm2 ~ 1, deptos.spdf, grilla, model=deptos.vgm.fit)
+kri.deptos <- krige(pm2 ~ coords.x1 + coords.x2, deptos.spdf, grilla, model=deptos.vgm.fit)
+
+#
+
+kri.deptos %>% as.data.frame %>%
+  ggplot(aes(x=coords.x1, y=coords.x2)) + geom_tile(aes(fill=var1.pred)) + coord_equal() +
+  scale_fill_gradient(low = "yellow", high="red")
+```
+

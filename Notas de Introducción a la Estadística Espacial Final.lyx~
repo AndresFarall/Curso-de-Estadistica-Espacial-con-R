@@ -1,0 +1,4707 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Introducción a la Estadística Espacial
+\end_layout
+
+\begin_layout Author
+Dr.
+ Andrés Farall
+\end_layout
+
+\begin_layout Section*
+Motivación
+\end_layout
+
+\begin_layout Standard
+Podemos mencionar al menos dos características fundamentales para considerar
+ a la estadística espacial como un campo de estudio específico.
+\end_layout
+
+\begin_layout Itemize
+El espacio es un factor con una estructura particular relevante para explicar/pr
+edecir muchos fenómenos de interés.
+ Tecnicamente, si queremos analizar la variable 
+\begin_inset Formula $Y$
+\end_inset
+
+ que posee un localización espacial 
+\begin_inset Formula $S,$
+\end_inset
+
+ generalemente sucede que su comportamiento (distribución 
+\begin_inset Formula $D$
+\end_inset
+
+) depende fuertemente del componente espacial 
+\begin_inset Formula $S$
+\end_inset
+
+, es decir 
+\begin_inset Formula $D\left(Y/S\right)\neq$
+\end_inset
+
+D
+\begin_inset Formula $\left(Y\right).$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Porque, incluso teniendo en cuenta los factores relevantes 
+\begin_inset Formula $X$
+\end_inset
+
+ para analizar el fenómeno 
+\begin_inset Formula $Y$
+\end_inset
+
+, otra información relevante proviene del comportamiento del fenómeno en
+ un entorno cercano.
+ Tecnicamente, para la variable 
+\begin_inset Formula $Y_{1}$
+\end_inset
+
+ con localización espacial 
+\begin_inset Formula $S_{1},$
+\end_inset
+
+ generalemente sucede que su comportamiento depende de 
+\begin_inset Formula $Y_{2}$
+\end_inset
+
+ con localización espacial 
+\begin_inset Formula $S_{2},$
+\end_inset
+
+ es decir 
+\begin_inset Formula $D\left(Y_{1}/X,S,Y_{2}\right)\neq$
+\end_inset
+
+D
+\begin_inset Formula $\left(Y_{1}/X,S\right),.$
+\end_inset
+
+si 
+\begin_inset Formula $S_{1}$
+\end_inset
+
+ está cerca de 
+\begin_inset Formula $S_{2}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section*
+Procesos Estocásticos Espaciales
+\end_layout
+
+\begin_layout Standard
+De manera general podemos definir a un proceso estocástico espacial como
+ una colección de variables o vectores aleatorios 
+\begin_inset Formula $Z$
+\end_inset
+
+ indexados en alguna región 
+\begin_inset Formula $S$
+\end_inset
+
+ del espacio 
+\begin_inset Formula $R^{d}$
+\end_inset
+
+ (normalmente con 
+\begin_inset Formula $\text{d=2}$
+\end_inset
+
+ o 
+\begin_inset Formula $d=3$
+\end_inset
+
+), es decir
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\left\{ Z\left(s\right):s\in S\subseteq R^{d}\right\} 
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En estos procesos hay dos fuentes bien distintas (y potencialmente relacionadas)
+ de variación o aleatoriedad.
+ La primera es la localización espacial de los casos (o eventos), denotada
+ por 
+\begin_inset Formula $s.$
+\end_inset
+
+ La segunda es la valuación de la variable o vector aleatorio 
+\begin_inset Formula $Z$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Para poder caracterizar completamente el proceso, necesitamos conocer la
+ distribución conjunta de cualquier conjunto finito de estas variables o
+ vectores 
+\begin_inset Formula $Z\left(s_{1}\right),Z\left(s_{2}\right)\ldots Z\left(s_{n}\right)$
+\end_inset
+
+, es decir conocer
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+P\left(Z\left(s_{1}\right)\in A_{1},Z\left(s_{2}\right)\in A_{2}\ldots Z\left(s_{n}\right)\in A_{n}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Un ejemplo concreto de una realización de este tipo de procesos es el resultado
+ de una votación a nivel de establecimiento, para el cual tenemos la localizació
+n de cada establecimiento.
+ La próxima figura muestra los sitios de votación alrededor del conourbano
+ bonaerense (arriba a la derecha), junto con un detalle espacial del noreste
+ del barrio de nuñez (centro de la imagen).
+ Asociado a cada punto tenemos la cantidad de votos del sitio y las proporciones
+ resultantes del sufragio.
+ Llama poderosamente la atención el resultado del punto celeste, que no
+ respeta la 
+\begin_inset Quotes eld
+\end_inset
+
+tendencia espacial
+\begin_inset Quotes erd
+\end_inset
+
+ de las proporciones de votos de la zona.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename Votos en PASO.png
+	scale 36
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En este caso particular, las localizaciones puntuales 
+\begin_inset Formula $s\in S$
+\end_inset
+
+ pueden ser pensadas como un proceso puntual aleatorio, en tanto que a priori
+ podríamos no saber cuales de todos los establecimientos potencialmente
+ utilizables serán efectivamente utilizados para el comicio.
+ En cuanto a la variable aleatoria 
+\begin_inset Formula $Z$
+\end_inset
+
+ podemos pensar en la proporción de votos de un determinado partido político.
+ O, podemos pensar en un vector aleatorio 
+\begin_inset Formula $\boldsymbol{Z}$
+\end_inset
+
+ que contemple todas las proporciones de votos de todos los partidos.
+ Algunas preguntas que surgen naturalmente son:
+\end_layout
+
+\begin_layout Itemize
+¿ Se hallan las localizaciones 
+\begin_inset Formula $s$
+\end_inset
+
+ concentradas espacialmente ?
+\end_layout
+
+\begin_layout Itemize
+¿ Como se comporta la variable 
+\begin_inset Formula $Z$
+\end_inset
+
+ ?
+\end_layout
+
+\begin_layout Itemize
+¿ Existe una relación entre las localizaciones 
+\begin_inset Formula $s$
+\end_inset
+
+ y los valores de la variable 
+\begin_inset Formula $Z$
+\end_inset
+
+ ?
+\end_layout
+
+\begin_layout Standard
+Nótese que la primer pregunta involucra sólo a las localizaciones.
+ La segunda pregunta comprende exclusivamente a la variable 
+\begin_inset Formula $Z$
+\end_inset
+
+.
+ En tanto que la tercer pregunta relaciona a las localizaciones con la variable
+ 
+\begin_inset Formula $Z$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+La situación más sencilla de proceso estocástico espacial es aquella en
+ la cual sólo tenemos información (o sólo tenemos interés) sobre la localización
+ espacial de los eventos (primer pregunta).
+ Esto puede ser pensado como un caso particular del proceso general mencionado
+ anteriormente, pues alcanza con definir 
+\begin_inset Formula $Z\left(s\right)=1$
+\end_inset
+
+ si el evento ocurrión en la posicón 
+\begin_inset Formula $s$
+\end_inset
+
+ y 
+\begin_inset Formula $Z\left(s\right)=0$
+\end_inset
+
+
+\begin_inset Formula $ $
+\end_inset
+
+ si no hay evento en la posición 
+\begin_inset Formula $s$
+\end_inset
+
+.
+ Pese a esto, a este caso tan particular se lo conoce como Procesos Espaciales
+ Puntuales (Point Pattern), y se los trabaja de manera totalmente diferente,
+ como veremos a continuación.
+\end_layout
+
+\begin_layout Section*
+Procesos Espaciales Puntuales
+\end_layout
+
+\begin_layout Standard
+Un proceso estocástico puntual 
+\begin_inset Formula $\boldsymbol{X}$
+\end_inset
+
+ es un proceso que genera conjuntos finitos aleatorios de puntos en 
+\begin_inset Formula $R^{d}$
+\end_inset
+
+.
+ Una definición más formal de un proceso estocástico puntual 
+\begin_inset Formula $\boldsymbol{X}$
+\end_inset
+
+ proviene de pensar que para toda región compacta 
+\begin_inset Formula $A\subseteq R^{d}$
+\end_inset
+
+ puede definirse una función 
+\begin_inset Formula $N\left(A\right)=\#\left\{ X\cap A\right\} $
+\end_inset
+
+, que cuenta la cantidad de eventos en la región, y que se comporta como
+ una variable aleatoria con una cierta distribución.
+ De esta forma, el proceso queda caracterizado por las distribuciones de
+ las variables aleatorias 
+\begin_inset Formula $N\left(A\right)$
+\end_inset
+
+ con 
+\begin_inset Formula $A\subseteq R^{d}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Sorprendentemnete, la distribución del proceso 
+\begin_inset Formula $\boldsymbol{X}$
+\end_inset
+
+ sólo depende de las probabilidades de eventos dicotómicos de presencia/ausencia
+, es decir, que alcanza con conocer el comportamiento de 
+\begin_inset Formula $V\left(A\right)=P\left(N\left(A\right)=0\right)$
+\end_inset
+
+ para toda región 
+\begin_inset Formula $A\subseteq R^{d}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+La siguiente figura muestra dos realizaciones de un proceso puntual sobre
+ una ventana 
+\begin_inset Formula $S\subset R^{d}.$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename Procesos espaciales.png
+	scale 16
+	BoundingBox 0bp 0bp 1920bp 750bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Es fundamental entender que realizaciones del mismo proceso pueden ser (y
+ en general lo son) muy distintas !
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+Proceso Binomial
+\end_layout
+
+\begin_layout Standard
+El proceso más sencillo que puede planterse es el proceso binomial.
+\end_layout
+
+\begin_layout Standard
+El proceso binomial es aquel que genera 
+\begin_inset Formula $n$
+\end_inset
+
+ eventos de manera independiente sobre una región compacta 
+\begin_inset Formula $S\subseteq R^{d}$
+\end_inset
+
+, donde cada uno de los eventos obedecen a la distribución espacial (pdf)
+ 
+\begin_inset Formula $f\left(x\right)$
+\end_inset
+
+ con 
+\begin_inset Formula $x\in S$
+\end_inset
+
+.
+ De esta forma, la variable aleatoria 
+\begin_inset Formula $N\left(A\right)$
+\end_inset
+
+ tiene una distribución binomial 
+\begin_inset Formula $b\left(n,p\right)$
+\end_inset
+
+ con la probabilidad 
+\begin_inset Formula $p=\intop_{A}f\left(x\right)dx$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+El caso particular más simple de proceso binomial consiste un fijar una
+ distribución espacial constante para los eventos 
+\begin_inset Formula $f\left(x\right)=c$
+\end_inset
+
+ con 
+\begin_inset Formula $x\in S$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection*
+¿ Cómo generamos una muestra de este proceso ?
+\end_layout
+
+\begin_layout Standard
+Muy facil.
+ Si la región 
+\begin_inset Formula $S$
+\end_inset
+
+ es rectangular 
+\begin_inset Formula $S=\left[a,b\right]\times\left[c,d\right]$
+\end_inset
+
+, basta con generar 
+\begin_inset Formula $n$
+\end_inset
+
+ pares de observaciones uniformes en los intervalos 
+\begin_inset Formula $\left[a,b\right]$
+\end_inset
+
+ y 
+\begin_inset Formula $\left[c,d\right]$
+\end_inset
+
+ de manera independiente.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+¿ Cómo generamos una muestra del proceso binomial para cualquier pdf ?
+\end_layout
+
+\begin_layout Standard
+También es facil.
+ Se basa en el 
+\series bold
+Principio Fundamental de la Simulación
+\series default
+ (no, no es un curso para políticos):
+\end_layout
+
+\begin_layout Quote
+Si 
+\begin_inset Formula $\left(\boldsymbol{X},U\right)\sim Unif\left(\left(\boldsymbol{x},u\right):0\leq u\leq f\left(\boldsymbol{x}\right)\right)$
+\end_inset
+
+ entonces 
+\begin_inset Formula $\boldsymbol{X}\sim f$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La intuición de este principio puede obtenerse rápidamente del próximo gráfico
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename Simulacion eventos.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En la figura se muestran 
+\begin_inset Formula $N=100$
+\end_inset
+
+ eventos generados de manera independiente en el cubo 
+\begin_inset Formula $\left[0,1\right]^{3}$
+\end_inset
+
+.
+ Si quisieramos generar eventos en el plano 
+\begin_inset Formula $\left(x,y\right)$
+\end_inset
+
+ que sigan una densidad 
+\begin_inset Formula $f\left(x\right)$
+\end_inset
+
+ que crezca cuadráticamente con ambas variables, representada por la superficie
+ de la figura, alcanza con tonar los puntos (color verde) que quedan por
+ debajo de la superficie.
+\end_layout
+
+\begin_layout Standard
+El mismo gráfico sugiere la mecánica de simulación: la técnica de aceptación-rec
+hazo por Monte Carlo.
+ Genramos una a una observaciones 
+\begin_inset Formula $\sim Unif\left(\boldsymbol{x},u\right)$
+\end_inset
+
+ en el cubo, y nos quedamos con (aceptamos) las observaciones que satisfacen
+ 
+\begin_inset Formula $0\leq u\leq f\left(\boldsymbol{x}\right)$
+\end_inset
+
+, y rechazamos el resto.
+ El proceso se interrumpe cuando alcanzamos 
+\begin_inset Formula $n$
+\end_inset
+
+ observaciones aceptadas.
+\end_layout
+
+\begin_layout Standard
+El mecanismo antes descripto produce realizaciones de un proceso binomial
+ general (bajo cualquier densidad).
+ Nótese que la generación de observaciones en un soporte más irregular que
+ un rectangulo se obtiene forzando a la función 
+\begin_inset Formula $f$
+\end_inset
+
+ a tomar valor 
+\begin_inset Formula $0$
+\end_inset
+
+ en los puntos que no están en el soporte.
+ Un caso muy especial es la generación de casos con densidad uniforme en
+ soportes irregulares, en los que se generan casos uniformes en el rectangulo
+ que lo comprende, para luego rechazar las que quedan fuera del soporte.
+\end_layout
+
+\begin_layout Subsection*
+La intensidad de un proceso
+\end_layout
+
+\begin_layout Standard
+En general, la intensidad de un proceso es una función que, dada una región
+ particular del soporte, nos permite calcular la cantidad esperada de eventos
+ en esa región.
+ En particular para el porceso binomial, esa función es la densidad 
+\begin_inset Formula $f$
+\end_inset
+
+ del proceso multiplicada por la cantidad de eventos 
+\begin_inset Formula $n$
+\end_inset
+
+.
+ Pues la cantidad esperada de eventos en 
+\begin_inset Formula $A\subseteq S\subseteq R^{d}$
+\end_inset
+
+ es claramente 
+\begin_inset Formula $E\left(N\left(A\right)\right)=np_{A}=n\intop_{A}f\left(x\right)dx$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection*
+Proceso Poisson
+\end_layout
+
+\begin_layout Standard
+Pensemos ahora en un proceso similar al binomial, pero reemplazando la función
+ de densidad por una función de intensidad 
+\begin_inset Formula $\lambda$
+\end_inset
+
+, para el cual le pedimos que para toda región compacta 
+\begin_inset Formula $A\subseteq S\subseteq R^{d}$
+\end_inset
+
+ cumpla que:
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $N\left(A\right)\sim P\left(\lambda=\intop_{A}\lambda\left(x\right)dx\right)$
+\end_inset
+
+.
+ O sea que la cantidad de eventos debe comportarse como una poisson.
+ 
+\end_layout
+
+\begin_layout Itemize
+Dado 
+\begin_inset Formula $N\left(A\right)=n$
+\end_inset
+
+, 
+\series bold
+
+\begin_inset Formula $N\left(B\right)\sim Binom\left(n,\sim\intop_{B}\lambda\left(x\right)dx\right)$
+\end_inset
+
+ 
+\series default
+cuando
+\series bold
+ 
+\begin_inset Formula $B\subseteq A$
+\end_inset
+
+
+\series default
+.
+ Es decir que si condicionamos a una cantidad de eventos fija en la ventana
+ que incluye a la región, la cantidad de eventos en la región sigue siendo
+ binomal.
+\end_layout
+
+\begin_layout Itemize
+Dadas las variables aleatorias 
+\begin_inset Formula $N\left(A\right)$
+\end_inset
+
+ y 
+\begin_inset Formula $N\left(A^{*}\right)$
+\end_inset
+
+, ambas son independientes si 
+\begin_inset Formula $A\cap A^{*}=\emptyset$
+\end_inset
+
+, es decir que son regiones disjuntas.
+\end_layout
+
+\begin_layout Standard
+A un proceso de poisson con intensidad constante, cuya función de intensidad
+ 
+\begin_inset Formula $\lambda\left(x\right)=c\mathcal{}$
+\end_inset
+
+ no depende del espacio, se lo llama 
+\series bold
+homogeneo
+\series default
+.
+\end_layout
+
+\begin_layout Subsubsection*
+¿ Cómo se llega a un proceso de Poisson con intensidad constante 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ ?
+\end_layout
+
+\begin_layout Standard
+Al proceso de poisson puede llegarse de múltiples maneras, una modalidad
+ particularmente intuitiva (al menos para mí), es partir de un proceso discreto
+ en un soporte acotado 
+\begin_inset Formula $S\subseteq R^{d}$
+\end_inset
+
+.
+ Armemos una grilla regular con celdas de área 
+\begin_inset Formula $a$
+\end_inset
+
+.
+ En cada celda aleatorizamos la ocurrencia del evento mediante una distribución
+ Bernoulli (
+\begin_inset Formula $Binom\left(1,p\right)$
+\end_inset
+
+) con probabilidad 
+\begin_inset Formula $p>0$
+\end_inset
+
+.
+ Ahora hagamos más fina la grilla, llevando el área de cada celda a cero
+ (
+\begin_inset Formula $a\rightarrow0$
+\end_inset
+
+) y al mismo tiempo haciendo que la probabilidad de ocurrencia del evento
+ también tienda a cero (
+\begin_inset Formula $p\rightarrow0$
+\end_inset
+
+), pero de tal forma que la relación entre ambos se mantenga constante y
+ alejada del cero, es decir 
+\begin_inset Formula $\frac{p}{a}\rightarrow\lambda$
+\end_inset
+
+ con 
+\begin_inset Formula $\lambda>0$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename Hacia Poisson.png
+	scale 35
+	BoundingBox 0bp 0bp 1587bp 660bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En el límite de este ejercico obtendremos un proceso de Poisson homogeneo
+ con intensidad constante 
+\begin_inset Formula $\lambda$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+¿ Cómo se llega a un proceso de Poisson desde el Proceso Binomial ?
+\end_layout
+
+\begin_layout Standard
+Partimos del proceso binomial definido sobre una región compacta 
+\begin_inset Formula $S\subseteq R^{d}$
+\end_inset
+
+, donde se generan 
+\begin_inset Formula $n$
+\end_inset
+
+ eventos de manera uniforme e independiente.
+ Tomando la región 
+\begin_inset Formula $A\subseteq S$
+\end_inset
+
+, sabemos que la variable aleatoria 
+\begin_inset Formula $N\left(A\right)$
+\end_inset
+
+ tiene una distribución binomial 
+\begin_inset Formula $b\left(n,p\right)$
+\end_inset
+
+ con la probabilidad 
+\begin_inset Formula $p=\frac{\mid A\mid}{\mid S\mid}$
+\end_inset
+
+.
+ Agrandemos ahora (al infinito y más allá) la región 
+\begin_inset Formula $S$
+\end_inset
+
+ y la cantidad de eventos generados, pero de modo tal que 
+\begin_inset Formula $\frac{n}{\mid S\mid}\rightarrow\lambda$
+\end_inset
+
+ constante (la intensidad).
+ La variable aleatoria 
+\begin_inset Formula $N\left(A\right)$
+\end_inset
+
+ tiene ahora una distribución 
+\begin_inset Formula $poisson\left(\lambda\right).$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Limite poisson.png
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+¿ Cómo generamos una muestra del proceso poisson para cualquier función
+ de intensidad 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ ?
+\end_layout
+
+\begin_layout Standard
+El mecanismo consta de dos pasos:
+\end_layout
+
+\begin_layout Itemize
+Definimos una región compacta 
+\begin_inset Formula $S\subseteq R^{d}$
+\end_inset
+
+, y generamos 
+\begin_inset Formula $N\sim P\left(\lambda=\intop_{S}\lambda\left(x\right)dx\right)$
+\end_inset
+
+ como la cantidad de eventos en la región.
+\end_layout
+
+\begin_layout Itemize
+Simulamos 
+\begin_inset Formula $n$
+\end_inset
+
+ (realización de la v.a.
+ 
+\begin_inset Formula $N$
+\end_inset
+
+) eventos según un proceso binomial con densidad 
+\begin_inset Formula $f\left(x\right)=\frac{\lambda\left(x\right)}{\intop_{S}\lambda\left(x\right)dx}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Importante
+\series default
+: El proceso de poisson queda caracterizado por la funcion de intensidad
+ 
+\begin_inset Formula $\lambda\left(x\right)$
+\end_inset
+
+, la cual NO tiene porque ser una densidad.
+ O see, NO integra 
+\begin_inset Formula $1$
+\end_inset
+
+.
+ Sin embargo, ambas nociones representan lo mismo, salvo una constante de
+ proporcionalidad, pues 
+\begin_inset Formula $f\left(x\right)\mid S\mid=\lambda\left(x\right)$
+\end_inset
+
+ .
+\end_layout
+
+\begin_layout Standard
+A modo de ejemplo mostramos en el próximo gráfico dos realizaciones de un
+ proceso de poisson inhomogeneo.
+ La primera con función de intensidad:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\lambda\left(x.y\right)=800\left(x-\frac{1}{2}\right)^{2}+800\left(y-\frac{1}{2}\right)^{2}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+en la que la intensidad se minimiza en el centro de la ventana 
+\begin_inset Formula $\left[0,1\right]\times\left[0,1\right]$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La segunda con función de intensidad:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\lambda\left(x.y\right)=200-800\left(x-\frac{1}{2}\right)^{2}+200-800\left(y-\frac{1}{2}\right)^{2}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+en la que la intensidad se maximiza en el centro de la ventana.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename poisson inhomogeneo.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Estacionariedad e Isotropía
+\end_layout
+
+\begin_layout Standard
+Presentamos dos conceptos fundamentales de los procesos espaciales.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Estacionariedad
+\series default
+: esta propiedad implica que podemos desplazarnos en el soporte del proceso,
+ y el mismo se comporta de la misma manera, es decir
+\end_layout
+
+\begin_layout Quote
+\begin_inset Formula $\boldsymbol{X}\sim\boldsymbol{X}+c$
+\end_inset
+
+ con 
+\begin_inset Formula $c\in R^{d}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Isotropía
+\series default
+: esta propiedad implica también invarianza del proceso, pero en este caso
+ en términos de su dirección, o sea
+\end_layout
+
+\begin_layout Quote
+\begin_inset Formula $\boldsymbol{X}\sim T\boldsymbol{X}$
+\end_inset
+
+ con 
+\begin_inset Formula $T\in R^{d\times d}$
+\end_inset
+
+ una matriz de rotación
+\end_layout
+
+\begin_layout Standard
+En un proceso de poisson homogeneo y en un proceso binomial con densidad
+ constante, se cumplen ambas propiedades (salvo por efecto borde, cuidado
+ !).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+Procesos de Thomas
+\end_layout
+
+\begin_layout Standard
+Los procesos de Thomas son procesos de clusterización.
+ A diferencia de los procesos de poisson y binomial, este nuevo proceso
+ involucra 
+\series bold
+interacción
+\series default
+ (dependencia) entre los eventos.
+ Específicamente, el proceso establece una dependencia positiva entre los
+ casos, haciendo que la localización de un evento en una zona aumente la
+ probabilidad de localización de otros eventos en dicha zona.
+ Este fenómeno tiende a generar clusters de forma natural.
+ Los pasos para simular realizaciones de este proceso son:
+\end_layout
+
+\begin_layout Itemize
+Genrar eventos 
+\begin_inset Quotes eld
+\end_inset
+
+padres
+\begin_inset Quotes erd
+\end_inset
+
+ provenientes de un proceso de poisson homogeneo con función de intensidad
+ 
+\begin_inset Formula $\lambda$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Para cada evento 
+\begin_inset Quotes eld
+\end_inset
+
+padre
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\begin_inset Formula $x\in R^{d}$
+\end_inset
+
+ generado en el paso anterior, generar una cantidad poisoon de 
+\begin_inset Quotes eld
+\end_inset
+
+hijos
+\begin_inset Quotes erd
+\end_inset
+
+ con cantidad esperada 
+\begin_inset Formula $\mu$
+\end_inset
+
+.
+ La localización del 
+\begin_inset Quotes eld
+\end_inset
+
+hijo
+\begin_inset Quotes erd
+\end_inset
+
+ i-ésimo será 
+\begin_inset Formula $x+\epsilon_{i}$
+\end_inset
+
+ con 
+\begin_inset Formula $\epsilon_{i}\sim N(\boldsymbol{0},\sigma^{2})$
+\end_inset
+
+, siendo los 
+\begin_inset Formula $\epsilon_{i}$
+\end_inset
+
+ independientes entre sí.
+\end_layout
+
+\begin_layout Itemize
+Eliminar los eventos 
+\begin_inset Quotes eld
+\end_inset
+
+padre
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Loa parámetros que definen este proceso son: la tasa de intensidad 
+\begin_inset Formula $\lambda,$
+\end_inset
+
+la cantidad esperada de hijos 
+\begin_inset Formula $\mu$
+\end_inset
+
+ y la dispersión 
+\begin_inset Formula $\sigma$
+\end_inset
+
+.
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La siguiente figura muestra 
+\begin_inset Formula $4$
+\end_inset
+
+ realizaciones de un proceso de Thomas en las que se varían los parámetros
+ 
+\begin_inset Formula $\mu$
+\end_inset
+
+ y 
+\begin_inset Formula $\sigma$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Thomas 4.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Proceso Secuencial de Inhibición Simple
+\end_layout
+
+\begin_layout Standard
+Este proceso genera eventos con patrones de distribución regular.
+ El proceso para generar 
+\begin_inset Formula $n$
+\end_inset
+
+ puntos se resume en los siguientes pasos:
+\end_layout
+
+\begin_layout Enumerate
+Defino una ventana 
+\begin_inset Formula $\boldsymbol{S\subseteq R^{d}}$
+\end_inset
+
+ donce tomará lugar el proceso puntual y una distancia 
+\begin_inset Formula $\delta$
+\end_inset
+
+ de inhibición entre puntos.
+\end_layout
+
+\begin_layout Enumerate
+Fijo 
+\begin_inset Formula $k=1$
+\end_inset
+
+ y genero un primer punto 
+\begin_inset Formula $X_{k}=X_{1}\in S$
+\end_inset
+
+ aleatoriamente con densidad uniforme
+\end_layout
+
+\begin_layout Enumerate
+Genero un nuevo punto 
+\begin_inset Formula $X_{k+1}$
+\end_inset
+
+ con densidad uniforme en 
+\begin_inset Formula $S_{k,\delta}=\left\{ s\in S:\parallel s-s_{i}\parallel>\delta,i=1\ldots k\right\} $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Si 
+\begin_inset Formula $k+1<n$
+\end_inset
+
+ vuelvo a 3, caso contrario termino
+\end_layout
+
+\begin_layout Standard
+El resultado de un proceso como este puede apreciarse en la siguiente figura.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename Inhibicion 4.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Puede observarse como al aumentar la distancia de inhibición se incrementa
+ la regularidad en el patrón de localización de los eventos.
+\end_layout
+
+\begin_layout Section*
+Proceso de Thinning
+\end_layout
+
+\begin_layout Standard
+El proceso de Thinning simula algunos procesos naturales en los que primero
+ se crean eventos, para luego ser reducidos mediante un proceso de eliminación.
+ El proceso se puede resumir genericamente en los siguientes pasos:
+\end_layout
+
+\begin_layout Enumerate
+Generar una realización de un proceso inicial 
+\begin_inset Formula $N_{0}\left(dx\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Generar una realización de un segundo proceso 
+\begin_inset Formula $Z\left(X\right)$
+\end_inset
+
+ que define que eventos del proceso inicial serán retenidos, y cuales serán
+ eliminados.
+\end_layout
+
+\begin_layout Standard
+Este proceso tiene la potencialidad de generar eventos con patrones de distribuc
+ión regular a pequeña escala, y con patrones de agregación a gran escala,
+ como se representa en la próxima figura, mediante un caso particular de
+ proceso de Thinning, en el cual el proceso inicial es un proceso de Inhibición
+ Simple, en tanto que el segundo proceso corresponde a un proceso de Poisson
+ homogeneo.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Thinning.png
+	scale 40
+	BoundingBox 0bp 0bp 1323bp 640bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En este caso particular, los eventos del proceso de poisson definen un area
+ de radio R en la cual se retendrán los eventos del procso inicial con probabili
+dad 
+\begin_inset Formula $Z\left(x\right)=0$
+\end_inset
+
+.
+ En casos mas generales, la marca de probabilidad de retención puede ser
+ no cosntante y función del espacio 
+\begin_inset Formula $x$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Procesos de Superposición
+\end_layout
+
+\begin_layout Standard
+Como se imaginarán, estos procesos refieren a los procesos resultantes de
+ 
+\begin_inset Quotes eld
+\end_inset
+
+superponer
+\begin_inset Quotes erd
+\end_inset
+
+ varios procesos en forma simultanea.
+ Un caso particular interesante es la superposición de procesos de Poisson
+ Inhomogeneos, que resulta en otro proceso de Poisson cuya intensidad es
+ la suma de las intensidades de los procesos intervinientes.
+\end_layout
+
+\begin_layout Standard
+La figura siguiente muestra la superposición de las dos realizaciones de
+ los procesos de Poisson inhomogeneos presentados previamente.
+ 
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Superposicion.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Complete Spatial Randomnes (CSR)
+\end_layout
+
+\begin_layout Standard
+De forma intuitiva podemos decir que un proceso que satisface la propiedad
+ de Complete Spatial Randomness (CSR) es un proceso que genera eventos 
+\series bold
+aleatorios
+\series default
+ 
+\series bold
+independientes
+\series default
+ y de manera 
+\series bold
+uniforme
+\series default
+ sobre un area específica.
+\end_layout
+
+\begin_layout Standard
+Estos procesos involucran dos características fundamentales:
+\end_layout
+
+\begin_layout Itemize
+Homogeneidad: todas las subregiones tienen la misma probabilidad de ocurrencia.
+\end_layout
+
+\begin_layout Itemize
+No Interacción: la presencia de un evento en una subregión no condiciona
+ la probabilidad de ocurrencia de otro evento.
+\end_layout
+
+\begin_layout Standard
+El proceso de Poisson homogeneo es EL proceso que respeta la CSR.
+ Por otro lado, un proceso de Poisson inhomogeneo falla en la primer característ
+ica, mientras que el proceso de Thomas incumple la segunda característica.
+\end_layout
+
+\begin_layout Standard
+Es improbable que un fenómeno espacial real cumpla en forma exacta la CSR.
+ La relevancia de CSR proviene de servir como una referencia contra la cual
+ se comparan los procesos puntuales empíricos de interés.
+ A continuación veremos algunas métricas que usualmente se aplican para
+ medir la distanica de un proceso real a uno del tipo CSR.
+\end_layout
+
+\begin_layout Subsection*
+La Función G
+\end_layout
+
+\begin_layout Standard
+La función 
+\begin_inset Formula $G\left(r\right)$
+\end_inset
+
+ computa la proporción de eventos para los cuales su vecino más cercano
+ dista menos que 
+\begin_inset Formula $r$
+\end_inset
+
+.
+ Dicho de otra forma, es la función de distribución de la variable (aleatoria)
+ 
+\begin_inset Quotes eld
+\end_inset
+
+distancia al vecino más cercano
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Si denominamos 
+\begin_inset Formula $d_{ij}$
+\end_inset
+
+ a la distancia entre el punto 
+\begin_inset Formula $i$
+\end_inset
+
+ y el punto 
+\begin_inset Formula $j$
+\end_inset
+
+, y 
+\begin_inset Formula $D_{i}=min_{j}\left\{ d_{ij},\forall j\neq i\right\} $
+\end_inset
+
+ la distancia al vecino más cercano del evento 
+\begin_inset Formula $i,$
+\end_inset
+
+ la función se puede definir así:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+G\left(r\right)=\frac{\#\left\{ D_{i}:D_{i}\leq r\right\} }{n}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+donde 
+\begin_inset Formula $n$
+\end_inset
+
+ es la cantidad total de eventos o puntos.
+\end_layout
+
+\begin_layout Standard
+Para un proceso CSR la función 
+\begin_inset Formula $G$
+\end_inset
+
+ puede calcularse analíticamente, como
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+G\left(r\right)=1-e^{-\lambda\pi r^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+siendo 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ la intensidad (constante, por ser SCR) del proceso.
+\end_layout
+
+\begin_layout Subsection*
+La Función F
+\end_layout
+
+\begin_layout Standard
+Una limitación obvia de la función G es que las distancias a los vecinos
+ más cercanos son medidas sólo desde los mismos eventos.
+ Esto produce por un lado una discretización natural de la curva, ya que
+ los eventos son pocos (en este caso) y no se distribuyen por toda la región.
+ Por otro lado, las distancias a eventos desde zonas vacias no es tenida
+ en cuenta.
+ Una solución (o alternativa) a esto es calcular las distancias a los eventos
+ más cercanos, pero ahora desde cualquier punto arbitrario de la región
+ de interés.
+ Así, la función 
+\begin_inset Formula $F\left(r\right)$
+\end_inset
+
+ computa la función de distribución de la variable (aleatoria) 
+\begin_inset Quotes eld
+\end_inset
+
+distancia al evento más cercano
+\begin_inset Quotes erd
+\end_inset
+
+ de todos los puntos de la región de análisis.
+\end_layout
+
+\begin_layout Standard
+Para mostrar la utilidad de estas métricas, tomaremos algunos de los procesos
+ vistos previamente, y calcularemos la función 
+\begin_inset Formula $G$
+\end_inset
+
+ en cada uno de ellos.
+\end_layout
+
+\begin_layout Standard
+Para el proceso de Poisson homogeneo obtenemos:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename ENVCSR
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Puede verse que las funciones empíricas F y G (curvas sólidas) se mantienen
+ bien adentro de la envolvente esperada para un proceso CSR.
+\end_layout
+
+\begin_layout Standard
+Para el proceso de Thomas obtenemos:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename ENVTHO
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En este caso, como es de esperar, la función G se posiciona por encima de
+ la envolvente, pues las distancias chicas a los vecinos más cercanos son
+ fáciles de alcanzar desde los mismos eventos, ya que se hallan fuertemente
+ concentrados.
+ Inversamente, la función F se posiciona por debajo de la envolvente, pues
+ las distancias chicas a los vecinos más cercanos son menos probables de
+ alcanzar desde puntos arbitrarios dentro de la región de análisis.
+ Sólo cuando los puntos de la región caen cerca o dentro de los clusters,
+ se obtienen proporciones importantes de distancias chicas.
+\end_layout
+
+\begin_layout Standard
+Para el proceso de Inhibición Simple obtenemos:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename ENVSSI
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Este caso es inverso al anterior, pues la función G acusa una nula proporción
+ de eventos muy cercanos entre sí, por la inhibición.
+ Mientras que la función F muestra proporciones altas de distancias chicas
+ a eventos, pues la regularidad del patrón puntual le asegura a cada punto
+ arbitrario dentro de la región un evento vecino cercano.
+\end_layout
+
+\begin_layout Standard
+Nótese también que en los dos últimos casos la función F en mucho mas suave
+ que la función G, manteniendo una relación inversa con respecto al benchmark
+ de CSR.
+\end_layout
+
+\begin_layout Subsection*
+La Función K de Ripley
+\end_layout
+
+\begin_layout Standard
+La métrica más difundida para cuantiicar el alejamiento de un patrón de
+ eventos en relación a un proceso CSR es la función K de Ripley.
+ Esta función 
+\begin_inset Formula $K\left(r\right)$
+\end_inset
+
+ mide, salvo una constante, la proporción de distancias entre eventos 
+\begin_inset Formula $d_{ij}$
+\end_inset
+
+ que son menores a 
+\begin_inset Formula $r$
+\end_inset
+
+.
+ O sea
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+K\left(r\right)=\frac{\bigparallel A\bigparallel}{n\left(n-1\right)}\sum_{i\neq j}I\left(d_{ij}<r\right)=\lambda^{-1}\sum_{i\neq j}\frac{I\left(d_{ij}<r\right)}{n-1}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Para un proceso CSR, la función equivale a 
+\begin_inset Formula $K\left(r\right)=\pi r^{2}$
+\end_inset
+
+.
+ Para simplificar la comparación, se aplica una simple transformación a
+ esta función, obteniendose la función 
+\begin_inset Formula $L\left(r\right)=\sqrt{\frac{K\left(r\right)}{\pi}}$
+\end_inset
+
+.
+ Con esta última función se suele graficar 
+\begin_inset Formula $r-L\left(r\right)$
+\end_inset
+
+ versus 
+\begin_inset Formula $r$
+\end_inset
+
+, y buscar alejamientos del valor 
+\begin_inset Formula $0$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Nuevamente, observemos para los procesos definidos previamente el comportamiento
+ de la función.
+\end_layout
+
+\begin_layout Standard
+Para el proceso de Poisson homogeneo obtenemos:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename KCSR.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Para el proceso de Thomas obtenemos:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename KTHO
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Para el proceso de Inhibición Simple obtenemos:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename KSSI.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nótese que en el caso de procesos de concentración, la función empírica
+ queda por encima de la envolvente, ya que preponderan las distancias pequeñas.
+ En tanto que en las situaciones de regularidad, las distancias muy cortas
+ están subrepresentadas, como en el proceso de inhibición, en el que se
+ excluyen vecinos muy cercanos.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+Estimación de la Intensidad del Proceso
+\end_layout
+
+\begin_layout Standard
+Si tuvieramos la sospecha que el proceso generador de los eventos es No
+ homogeneo, como es de esperar en la mayoría de los casos, surge la necesidad
+ de inferir la función de intensidad subyacente al proceso.
+\end_layout
+
+\begin_layout Standard
+El enfoque más simple proviene de suponer que el proceso generador es un
+ proceso de Poisson inhomogeneo.
+ Bajo este supuesto es facil ver que (Diggle 8.2) la log-verosimilitud del
+ proceso puede escribirse como
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+L\left(\lambda\right)=\sum_{i=1}^{n}log\left(\lambda\left(x_{i}\right)\right)-\int_{A}\lambda\left(x\right)dx
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+done 
+\begin_inset Formula $x_{i}$
+\end_inset
+
+ es la localización del evento i-ésimo, 
+\begin_inset Formula $A$
+\end_inset
+
+ es la región de análisis, y 
+\begin_inset Formula $\lambda\left(.\right)$
+\end_inset
+
+ es la función de intensidad desconocida que debemos modelar.
+ Usualmente se propondrá alguna función paramétrica para 
+\begin_inset Formula $\lambda_{\boldsymbol{\beta}}\left(x\right)$
+\end_inset
+
+, como por ejemplo algún polinomio de bajo grado con parámetros 
+\begin_inset Formula $\boldsymbol{\beta}$
+\end_inset
+
+.
+ En este caso el enfoque es completamente paramétrico, y la estimación consiste
+ en buscar aquel valor de los parámetros que minimicen la expresión 
+\begin_inset Formula $L_{\beta}\left(x_{1},\ldots,x_{n}\right)$
+\end_inset
+
+.
+ Un aspecto interesante de esta expresión, es que resalta claramente el
+ trade-off sesgo-varianza inherente al proceso de estimación.
+ El primer término de la expresión se encarga de 
+\begin_inset Quotes eld
+\end_inset
+
+ajustar
+\begin_inset Quotes erd
+\end_inset
+
+ la función de intensidad a la muestra (reducción de sesgo), en tanto que
+ el segundo término penaliza globalmente el exceso de ajuste (reducción
+ de varianza).
+\end_layout
+
+\begin_layout Standard
+Desde los enfoques no paramétricos, la técnica más difundida de estimación
+ de la intensidad es la de KDE (Kernel Density Estimation).
+ El estimador se define como
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\widehat{\lambda}\left(x\right)=\frac{1}{h^{2}}\sum_{i=1}^{n}K\left(\frac{\parallel x-x_{i}\parallel}{h}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+donde 
+\begin_inset Formula $x$
+\end_inset
+
+ es el punto de estimación, 
+\begin_inset Formula $h$
+\end_inset
+
+ es un escalar que sirve para regular la granularidad de la estimación (ventana
+ o bandwidth), y 
+\begin_inset Formula $K$
+\end_inset
+
+ es una función positiva de nucleo que sirve para ponderar las observaciones,
+ dándole mayor importancia a las más cercanas al punto donde se está estimando
+ la intensidad.
+\end_layout
+
+\begin_layout Standard
+Este estimador de la intensidad, es equivalente el estimador de desnsidad
+ por nucleos que se usa para estimar densidades.
+ La única diferencia es la falta de la constante 
+\begin_inset Formula $\frac{1}{n}$
+\end_inset
+
+ que asegura que sea una densidad (que integre 
+\begin_inset Formula $1$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+El kernel más utilizado es el gausiano.
+ Otro kernel muy usual para el cálculo de intensidades en estadística espacial
+ es el kernel cuadrático:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+K\left(u\right)=\begin{cases}
+\frac{3}{\pi}\left(1-\bigparallel u\bigparallel^{2}\right)^{2} & u\in\left(-1,1\right)\\
+0 & cc
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Veamos ahora como se comporta el estimador de intensidad por nucleos en
+ algunas de las realizaciones de procesos vistas antes.
+ Empecemos con el proceso de Poisson Inhomogeneo.
+\end_layout
+
+\begin_layout Standard
+Estimamos la intensidad del patrón de puntos que fue generado con función
+ de intensidad:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\lambda\left(x.y\right)=800\left(x-\frac{1}{2}\right)^{2}+800\left(y-\frac{1}{2}\right)^{2}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+en la que la intensidad se minimiza en el centro de la ventana 
+\begin_inset Formula $\left[0,1\right]\times\left[0,1\right]$
+\end_inset
+
+, con un valor de 
+\begin_inset Formula $0$
+\end_inset
+
+, y se maximiza hacia los bordes, en donde alcanza valores que oscilan entre
+ 
+\begin_inset Formula $200$
+\end_inset
+
+ y 
+\begin_inset Formula $400.$
+\end_inset
+
+(en las esquinas).
+ El sigueinte gráfico muestra el resultado de aplicar el estimador KDE con
+ un núcleo normal y un valor de ventana de 
+\begin_inset Formula $0.15.$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename KDE INH
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Se aprecia que la estimación es bastante precisa.
+ Pero de donde sacamos este valor de ventana 
+\begin_inset Formula $h=0.15$
+\end_inset
+
+ ? Una modalidadu usual y efectiva es calcular el 
+\begin_inset Formula $h$
+\end_inset
+
+ óptimo por validación cruzada de un elemento (LOOCV).
+ Se aproxima el error (esperado) entre la intensidad estimada y la real
+ para diferentes valores de 
+\begin_inset Formula $h$
+\end_inset
+
+ y se elige el que arroje un menor error.
+\end_layout
+
+\begin_layout Standard
+La idea es hallar un valor de 
+\begin_inset Formula $h$
+\end_inset
+
+ que minimice el siguiente error 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Error\left(h\right)=\int\left(\widehat{\lambda_{h}}\left(x\right)-\lambda\left(x\right)\right)^{2}dx
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+que es equivalente a
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Error\left(h\right)=\int\widehat{\lambda_{h}}^{2}\left(x\right)dx-2\int\widehat{\lambda_{h}}\left(x\right)\lambda\left(x\right)dx+\int\lambda^{2}\left(x\right)dx
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+como el último término no depende de 
+\begin_inset Formula $h$
+\end_inset
+
+ podemos eliminarlo, y nos queda
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Error^{*}\left(h\right)=\int\widehat{\lambda_{h}}^{2}\left(x\right)dx-2\int\widehat{\lambda_{h}}\left(x\right)\lambda\left(x\right)dx
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+que puede ser aproximado por
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\widehat{Error^{*}}\left(h\right)=\int\widehat{\lambda_{h}}^{2}\left(x\right)dx-2\sum_{i}\widehat{\lambda_{h}^{-i}}\left(x_{i}\right)\frac{1}{n}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+donde 
+\begin_inset Formula $\widehat{\lambda_{h}^{-i}}\left(x_{i}\right)$
+\end_inset
+
+ es la estimación (sin la observación i-ésima) de la intnsidad evaluada
+ en la observación 
+\begin_inset Formula $i$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+En nuestro caso, el gráfico de la estimación del error 
+\begin_inset Formula $\widehat{Error^{*}}\left(h\right)$
+\end_inset
+
+ por LOOCV es (la flecha verde señala el valor 
+\begin_inset Formula $h=0.15$
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename KDE INH CV
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Claramente, ventanas más grandes (y demasiado chicas) aumentarían el error.
+\end_layout
+
+\begin_layout Standard
+Veamos dos situaciones desfavorables, una con una ventana muy chica (panel
+ izquierdo, 
+\begin_inset Formula $h=0.03$
+\end_inset
+
+), y la otra con un valor de ventana exageradamente grande (panel derecho,
+ 
+\begin_inset Formula $h=0.6$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename KDE INH muy chico
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename KDE INH muy grande
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Veamos ahora que sucede con la estimación de la intensidad del patrón de
+ puntos generado por el proceso de Thomas.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename KDE THO CV
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename KDE THO
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Efectivamente, el estimador encuentra zonas de alta densidad de concentración
+ de eventos.
+ Sin embargo, como ha sido mencionado numerosas veces, con una sóla realización
+ del proceso no podemos saber si es la función de intensidad la que genera
+ la concentración, o un efecto de interacción entre eventos, como en este
+ caso.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Geoestadística: Interpolación y Predicción Espacial
+\end_layout
+
+\begin_layout Standard
+La interpolación y la predicción espacial suelen considerarse como técnicas
+ esenciales del campo de estudio denominado 
+\series bold
+geoestadística
+\series default
+.
+ En geoestadístia, el objetivo fundamental es el de analizar el comportamiento
+ de una o varias variables 
+\begin_inset Formula $\boldsymbol{Z}$
+\end_inset
+
+ que son medidas en diferentes puntos del espacio 
+\begin_inset Formula $s$
+\end_inset
+
+, es decir 
+\begin_inset Formula $\boldsymbol{Z}\left(s\right)$
+\end_inset
+
+.
+ Sin embargo, en este caso, el interés no está centrado en el análisis de
+ las posiciones (
+\begin_inset Formula $s$
+\end_inset
+
+) de las mediciones, sino en las mediciones (
+\begin_inset Formula $\boldsymbol{Z}$
+\end_inset
+
+).
+ Así, las propiedades de heterogeneidad, concentración, o regularidad de
+ las ubicaciones no son un objeto de estudio en sí mismo, en tanto que sí
+ son un atributo insoslayable del estudio de 
+\begin_inset Formula $\boldsymbol{Z}$
+\end_inset
+
+.
+ El problema básico de la geoestadística es el de pronosticar el valor no
+ observado de 
+\begin_inset Formula $\boldsymbol{Z}\left(s_{0}\right)$
+\end_inset
+
+ habiendo observado 
+\begin_inset Formula $\boldsymbol{Z}\left(s_{1}\right),\boldsymbol{Z}\left(s_{2}\right)\ldots\boldsymbol{Z}\left(s_{N}\right)$
+\end_inset
+
+, cuando las ubicaciones espaciales 
+\begin_inset Formula $s_{1}$
+\end_inset
+
+, 
+\begin_inset Formula $s_{2}$
+\end_inset
+
+, 
+\begin_inset Formula $\ldots$
+\end_inset
+
+,
+\begin_inset Formula $s_{N}$
+\end_inset
+
+ se hallan cerca de 
+\begin_inset Formula $s_{0}$
+\end_inset
+
+, como se muestra en la próxima figura
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Prediccion e interpolacion.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En este ejemplo, donde se cuenta con precios de venta de propiedades en
+ la ciudad de Buenos Aires, se busca predecir el precio de una nueva propiedad
+ en función del conocimiento de los precios y ubicaciones de otras propiedades
+ cercanas.
+\end_layout
+
+\begin_layout Standard
+Existen varias herramientas para realizar esta tarea, siendo tres de las
+ más difundidas:
+\end_layout
+
+\begin_layout Itemize
+Inverse Distance Weighting (IDW)
+\end_layout
+
+\begin_layout Itemize
+Geographically Weighted Regression (GWR)
+\end_layout
+
+\begin_layout Itemize
+Kriging
+\end_layout
+
+\begin_layout Standard
+En lo que sigue resumiremos brevemente estas herramientas.
+\end_layout
+
+\begin_layout Standard
+Pero antes vamos a generar datos espaciales simulados que nos serviran para
+ aplicar las técnicas, y adicionalmente para comprender las características
+ esenciales del fenómeno que queremos modelar.
+\end_layout
+
+\begin_layout Subsection*
+Simulación Espacial: Proceso Marcado Autocorrelacionado
+\end_layout
+
+\begin_layout Standard
+Vamos a simular 
+\begin_inset Formula $N=300$
+\end_inset
+
+ datos de un proceso espacial 
+\begin_inset Formula $Y\left(x1,x2\right)$
+\end_inset
+
+ continuo en el soporte 
+\begin_inset Formula $x_{1}=[0,1]\times x_{2}=[0,1]$
+\end_inset
+
+ con las siguientes características:
+\end_layout
+
+\begin_layout Itemize
+Proceso marcado, con una variable de marca continua 
+\begin_inset Formula $Y$
+\end_inset
+
+ cuyas realizaciones tomarán valores entre 
+\begin_inset Formula $2.3$
+\end_inset
+
+ y 
+\begin_inset Formula $8.3$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Una tendencia espacial lineal determinística dada por 
+\begin_inset Formula $E\left(Y\right)=3+2*x_{1}+4*x_{2}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Una estructura de autocorrelación espacial positiva de los errores 
+\begin_inset Formula $\varepsilon$
+\end_inset
+
+, por lo que observaciones cercanas tenderán a mostrar valores parecidos,
+ más allá de su componente determinística compartida.
+ Específicamente, la estructura de correlacioes de los errores obedece a
+ 
+\begin_inset Formula $Cor\left(\varepsilon_{i},\varepsilon_{j}\right)\propto Exp\left(-5\parallel\boldsymbol{X}_{i}-\boldsymbol{X}_{j}\parallel\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Veamos la realización del proceso con la que trabajaremos de ahora en más.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Proceso simulado.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Observesé que los valores de marca aumentan en gran medida de sur a norte
+ (
+\begin_inset Formula $x_{2}$
+\end_inset
+
+), y en menor medida de oeste a este (
+\begin_inset Formula $x_{1}$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+También es interesante mostrar el mapa de los errores, es decir, el mapa
+ de los valores observados (realizados) deducida la tendencia espacial real
+ (poblacional).
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Mapa de Errores.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nótese que los errores se hallan claramente autocorrelacionados.
+ De hecho, los colores no se hallan distribuidos aleatoriamente en el mapa,
+ mas bien se encuentran aglomerados espacialmente en relación a la similaridad
+ de sus valores.
+\end_layout
+
+\begin_layout Standard
+Todo esto puede verse simultaneamente en el sigueinte gráfico de perspectiva
+\end_layout
+
+\begin_layout Standard
+\align left
+\begin_inset Graphics
+	filename Simulacion 3D.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En el gráfico puede apreciarse el plano inclinado (la tendencia espacial
+ determinística), y la autocorrelación, evidente por el agrupamiento de
+ las observaciones por debajo (y encima) del plano (fíjese el faltante de
+ observaciones sobre el plano en la parte central del mismo).
+\end_layout
+
+\begin_layout Standard
+A los fines puramente descriptivos, una herramienta muy utilizada para cuantific
+ar la componente de autocorrelación espacial es el Indice I de Moran.
+\end_layout
+
+\begin_layout Subsubsection*
+El Índice de Moran
+\end_layout
+
+\begin_layout Standard
+Este índice mide la autocorrelación espacial de una variable 
+\begin_inset Formula $X$
+\end_inset
+
+ con mediciones en el espacio.
+ Se define como
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+I=\frac{n}{{\displaystyle {\displaystyle \sum_{i,j}W_{ij}}}}\frac{\sum_{i,j}W_{ij}\left(X_{i}-\overline{X}\right)\left(X_{j}-\overline{X}\right)}{\sum_{i}\left(X_{i}-\overline{X}\right)^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+donde:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $X_{i}$
+\end_inset
+
+ es la medición i.ésima de la variable de análisis
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\overline{X}$
+\end_inset
+
+ es la media global de la variable
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $W_{i,j}$
+\end_inset
+
+ es un ponderador relacionado inversamente con la distancia
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Bajo la hipótesis nula de no autocorrelación, este índice tiene un valor
+ esperado de 
+\begin_inset Formula $-1/\left(n-1\right)$
+\end_inset
+
+, muy cercano a cero cunado 
+\begin_inset Formula $n$
+\end_inset
+
+ es grande.
+\end_layout
+
+\begin_layout Standard
+Vale la pena reescribir al índice descomponiendolo en 
+\begin_inset Formula $n$
+\end_inset
+
+ términos aditivos, de la siguiente manera
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+I & =\frac{n}{{\displaystyle {\displaystyle \left(\sum_{i,j}W_{ij}\right)}\sum_{i}\left(X_{i}-\overline{X}\right)^{2}}}\sum_{i}\left(X_{i}-\overline{X}\right)\sum_{j}W_{ij}\left(X_{j}-\overline{X}\right)=\\
+ & =\sum_{i}\left(\frac{n\left(X_{i}-\overline{X}\right)}{{\displaystyle {\displaystyle \left(\sum_{i,j}W_{ij}\right)}\sum_{i}\left(X_{i}-\overline{X}\right)^{2}}}\sum_{j}W_{ij}\left(X_{j}-\overline{X}\right)\right)=\\
+ & =\sum_{i}I_{i}
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A cada uno de estos 
+\begin_inset Formula $n$
+\end_inset
+
+ términos (
+\begin_inset Formula $I_{i}$
+\end_inset
+
+) se los llama 
+\begin_inset Quotes eld
+\end_inset
+
+Local Moran
+\begin_inset Quotes erd
+\end_inset
+
+, y miden, centrados en cada observación, el grado de correlación que esa
+ observación tiene con su entorno.
+ El índice local de Moran queda así
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+I_{i}=\frac{n\left(X_{i}-\overline{X}\right)}{{\displaystyle {\displaystyle \left(\sum_{i,j}W_{ij}\right)}\sum_{i}\left(X_{i}-\overline{X}\right)^{2}}}\sum_{j}W_{ij}\left(X_{j}-\overline{X}\right)
+\]
+
+\end_inset
+
+Es claro que, salvo constantes, el índice capta la relación entre el desvio
+ de la observación i-ésima con respecto a la media 
+\begin_inset Formula $\left(X_{i}-\overline{X}\right)$
+\end_inset
+
+, y los desvios de las observaciones cercanas 
+\begin_inset Formula $\sum_{j}W_{ij}\left(X_{j}-\overline{X}\right)$
+\end_inset
+
+, si pensamos en ponderadores que dan valor 
+\begin_inset Formula $1$
+\end_inset
+
+ a las observaciones cercanas y 
+\begin_inset Formula $0$
+\end_inset
+
+ a las lejanas.
+ En situaciones de autocorrelación positiva, el índice debiera dar valores
+ positivos.
+\end_layout
+
+\begin_layout Standard
+Es importante considerar que si la varianle 
+\begin_inset Formula $X$
+\end_inset
+
+ poseé una tendencia espacial (proceso no homogeneo), el índice de Moran
+ arrojará, trivialmente valores significativos y positivos, aún cuando no
+ exista autocorrelación espacial.
+ ¿ Por qué ? Porque las observaciones de 
+\begin_inset Formula $X$
+\end_inset
+
+ que se encuentran en zonas de alta tendencia tendrán valores por sobre
+ su media global, pero las observaciones cercanas también, ya que comparten
+ las misma tendencia ! Estaríamos confundiendo inhomogeneidad con autocorrelació
+n.
+\end_layout
+
+\begin_layout Standard
+En el caso de nuestros datos simulados sabemos que existe una tendencia,
+ por lo que aplicaremos el Índice de Moran a los residuos de los datos.
+ El índice arroja un valor de 
+\begin_inset Formula $0.25$
+\end_inset
+
+, muy alejado del valor esperado de 
+\begin_inset Formula $0.003$
+\end_inset
+
+ bajo la hipótesis nula de no autocorrelación.
+\end_layout
+
+\begin_layout Standard
+Si graficamos los valores de Moran locales para nuestros datos, podemos
+ ver el sigueinte mapa
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Local Moran Errores.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Por supuesto que los valores están agrupados.
+ Lo revelador de este tipo de mapas es la evaluación de la localización
+ de los valores más elevados.
+ En este caso, la diagonal suroeste-noreste parece ser la zona de mayor
+ autocorrelación espacial positiva.
+ Mas adelante veremos este análisis aplicado a datos reales.
+\end_layout
+
+\begin_layout Subsubsection*
+Celdas de Voronoi o Nearest Neighbor Interpolation
+\end_layout
+
+\begin_layout Standard
+El método de interpolación más sencillo que puede pensarse es aquel que
+ predice el valor de caulquier punto del espacio 
+\begin_inset Formula $X_{0}=X\left(s_{0}\right)$
+\end_inset
+
+ con el valor observado más cercano a ese nuevo punto, es decir 
+\begin_inset Formula $\widehat{X_{0}}=\left\{ X_{i}:s_{i}=Min_{k}\parallel s_{k}-s_{0}\parallel\right\} $
+\end_inset
+
+.
+ Esto es equivalente a particionar la región de estudio en sus celdas de
+ Voronoi, y asignar a cada celda el valor de la observación contenida en
+ la celda.
+\end_layout
+
+\begin_layout Standard
+La partición de Voronoi (Voronoi tessellaion) de nuestros datos es
+\end_layout
+
+\begin_layout Standard
+\align left
+\begin_inset Graphics
+	filename Voronoie tessellation.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Cada celda posee una única observación en su interior, con fornteras formadas
+ por las bisectries de equidistancia entre pares de observaciones.
+\end_layout
+
+\begin_layout Standard
+La interpolación de Voronoi aplicada a nuestros datos simulados es
+\end_layout
+
+\begin_layout Standard
+\align left
+\begin_inset Graphics
+	filename Interpolacion Voronoi.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Claramente, el resultado es un campo no continuo con alta chance de sobreajustar
+ (a la muestra) el fenómeno (proceso) subyacente.
+\end_layout
+
+\begin_layout Standard
+Una inmensa mejora a esta técnica, llamada Natural Neighbor Interpolation,
+ predice el valor de caulquier punto del espacio 
+\begin_inset Formula $X_{0}=X\left(s_{0}\right)$
+\end_inset
+
+ con el promedio ponderado de los valores de obaservaciones cuyas celdas
+ de Voronoi intersectan la 
+\begin_inset Quotes eld
+\end_inset
+
+nueva
+\begin_inset Quotes erd
+\end_inset
+
+ celda de Voronoi del punto a ser predicho, con ponderadores proporcionales
+ a las áreas de intersección de las celdas con esta nueva celda.
+ Es decir
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\widehat{X_{0}}=\sum_{i}\frac{A\left(X_{i}\right)}{A\left(X_{0}\right)}X_{i}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+donde 
+\begin_inset Formula $A\left(X_{i}\right)$
+\end_inset
+
+ es el área de intersección de la celda de Voronoi de 
+\begin_inset Formula $X_{i}$
+\end_inset
+
+ con la nueva cleda de 
+\begin_inset Formula $X_{0}$
+\end_inset
+
+, y 
+\begin_inset Formula $A\left(X_{0}\right)$
+\end_inset
+
+ es el área de la celda del punto a ser predicho.
+\end_layout
+
+\begin_layout Standard
+El próximo gráfico muestra un ejemplo de este método
+\end_layout
+
+\begin_layout Standard
+\align left
+\begin_inset Graphics
+	filename Natural neighbor Interpolation.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En color naranja se representa el área de la celda de Voronoi del punto
+ a ser predicho 
+\begin_inset Formula $X_{0}$
+\end_inset
+
+, que genera intersección con 
+\begin_inset Formula $6$
+\end_inset
+
+ observaciones.
+ La observación que más (menos) influye en la predición es 
+\begin_inset Formula $X_{4}$
+\end_inset
+
+ (
+\begin_inset Formula $X_{2}$
+\end_inset
+
+), mientras que la observación 
+\begin_inset Formula $X_{_{5}}$
+\end_inset
+
+ no contribuye en nada a la estimación.
+ 
+\end_layout
+
+\begin_layout Standard
+A diferencia de la interpolación por el vecino más cercano, esta técnica
+ produce una superficie suave de predicción, conservando la estimación en
+ los puntos de muestra coincidentes con los valores observados.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+Inverse Distance Weighting (IDW)
+\end_layout
+
+\begin_layout Standard
+Esta es otra de las técnicas más sencillas de interpolación, y consiste
+ simplemente en predecir un nuevo valor mediante el promedio ponderado de
+ los valores cercanos, haciendo que las ponderaciones sean inversamente
+ proporcionales a sus respectivas distancias en relación a la posición del
+ valor a ser predicho.
+ La intuición del método y la regla de cálculo pueden verse en la siguiente
+ figura
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Predictor IDW.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+De lo que se desprende de la figura, si tuvieramos que predecir a 
+\begin_inset Formula $\boldsymbol{Z}\left(s_{0}\right)$
+\end_inset
+
+ en función de las 
+\begin_inset Formula $3$
+\end_inset
+
+ observaciones a las que apuntan las flechas, parece razonable que la predicción
+ se vea más influenciada por la medición de menor valor (círculo pequeño
+ al sur-este), y menos por la medición de mayor valor (círculo grande al
+ norte).
+\end_layout
+
+\begin_layout Standard
+Esta técnica provee, como resultado de su aplicación, un campo de interpolación
+ continua (suave) para la región de análisis, excepto para las ubicaciones
+ de las mismas observaciones, en las que el predictor no está definido (división
+ por cero !).
+ Para los casos particulares de evaluación del predictor en puntos observados,
+ para los cuales la distancia es cero, se define el valor predicho igual
+ al observado en esos puntos, para solucionar el problema de indefinición
+ que generan las distancias iguales a cero.
+\end_layout
+
+\begin_layout Standard
+El parámetro que regula el nivel de complejidad de la interpolación es el
+ grado del exponente (
+\begin_inset Formula $k$
+\end_inset
+
+) que afecta a la distancia, el cual deberá tomar valores estrictamente
+ positivos.
+ Un incremento del valor de este parámetro produce una estimación más 
+\begin_inset Quotes eld
+\end_inset
+
+local
+\begin_inset Quotes erd
+\end_inset
+
+, ya que las observaciones más cercanas recibirán proporcionalemente mucho
+ más peso.
+ Contrariamente, reducciones del valor del parámetro producirán interpolaciones
+ más 
+\begin_inset Quotes eld
+\end_inset
+
+globales
+\begin_inset Quotes erd
+\end_inset
+
+, captando con mayor facilidad tendencias espaciales, en detrimento de patrones
+ puntuales.
+\end_layout
+
+\begin_layout Standard
+Mostramos ahora la aplicación ejemplo con 
+\begin_inset Formula $N=300$
+\end_inset
+
+ observaciones para las cuales los valores de medición aumentan (círculos
+ grandes) de sur a norte, y en menor medida de oeste a este.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Graficos IDW.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Se aprecia como el valor de 
+\begin_inset Formula $k=2.5$
+\end_inset
+
+ detecta patrones locales, mientras que el valor del parámetro 
+\begin_inset Formula $k=0.5$
+\end_inset
+
+ sólo capta la tendencia más importante de orientación sur-norte.
+ 
+\end_layout
+
+\begin_layout Standard
+Es interesante notar que la tendencia oeste-este no se puede observar, ni
+ siquiera con un valor reducido del parámetro de 
+\begin_inset Formula $k=0.5$
+\end_inset
+
+.
+ Para poder rescatar esa tendencia debieramos achicar más aún el valor del
+ parámetro, llevandolo a 
+\begin_inset Formula $k=0.1$
+\end_inset
+
+.
+ como se muestra en este último gráfico.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Graficos IDW 2.png
+	scale 45
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La pregunta de siempre es: ¿ Como se determina el valor óptimo del parámetro
+ ? La respuesta de siempre es: Validación Cruzada ??? No necesariamente.
+ Puede no existir un valor óptimo de parámetro.
+ Puede ser revelador generar varios análisis con diferentes valores, y comparar
+ los resultados.
+ La generación de una secuencia de análisis de este tipo podría enseñarnos
+ posibles tendencias globales, e interesantes patrones locales, como en
+ el ejemplo recién presentado.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Kriging
+\end_layout
+
+\begin_layout Standard
+El Krging es una técnica de predicción espacial para procesos marcados que
+ se originó en la industria de la minería.
+ La idea principal es la de descomponer a un proceso espacial en dos componentes.
+ Un primer componente de variación espacial de gran alcance o de alcance
+ global 
+\begin_inset Formula $\mu\left(S\right)$
+\end_inset
+
+.
+ Un segundo componente de variación espacial de corto alcance o de alcance
+ local 
+\begin_inset Formula $\epsilon_{\Sigma}\left(S\right)$
+\end_inset
+
+.
+ Así el fenómeno se puede expresar
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Z\left(S\right)=\mu\left(S\right)+\varepsilon_{\Sigma}\left(S\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+donde
+\end_layout
+
+\begin_layout Standard
+la componente 
+\begin_inset Formula $\text{\mu\left(S\right) suele incorporar efectos de predictoras, y la componente}$
+\end_inset
+
+ 
+\begin_inset Formula $\varepsilon_{\varSigma}\left(S\right)$
+\end_inset
+
+ se encarga de modelar los efectos de la autocorrelación espacial, modelados
+ a traves de la metriz de covarainzas de los errores (
+\begin_inset Formula $\Sigma$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+A grandes rasgos existen tres tipos de kriging distintos, cada uno obedeciendo
+ a diferentes supuestos sobre la primer componente.
+\end_layout
+
+\begin_layout Standard
+Lo que se conoce con 
+\series bold
+Simple Kriging
+\series default
+ asume una intensidad media 
+\begin_inset Formula $\mu$
+\end_inset
+
+ constante y conocida, o sea
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Z\left(S\right)=\mu+\varepsilon_{\varSigma}\left(S\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En el caso que podamos suponer una intensidad media constante pero desconocida
+ 
+\begin_inset Formula $m$
+\end_inset
+
+, tendremos 
+\series bold
+Ordinary Kriging
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Z\left(S\right)=m+\varepsilon_{\Sigma}\left(S\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finalmente, el modelo maś util y realista, llamado 
+\series bold
+Universal Kriging
+\series default
+, consiste en suponer una intensidad media no constante, dependiente (potencialm
+ente) de predictoras 
+\begin_inset Formula $X$
+\end_inset
+
+ que pueden tener una componente espacial.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Z\left(S\right)=X\left(S\right)\boldsymbol{\beta}+\varepsilon_{\varSigma}\left(S\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En este último caso, la predicción final requerirá la estimación de los
+ parámetros desconocidos 
+\begin_inset Formula $\boldsymbol{\beta}$
+\end_inset
+
+, así como de la estructura de correlación espacial 
+\begin_inset Formula $\Sigma$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection*
+El Modelo de Kriging como Predictor
+\end_layout
+
+\begin_layout Standard
+El modelo de kriging puede ser considerado un caso particular del modelo
+ que motiva a la técnica Generalized Least Squares (GLS), que expande al
+ modelo lineal clásico al caso en el que los errores NO son independientes.
+ En nuestro caso, es de esperar que los errores muestren una estructura
+ de autocorrelación (a traves de 
+\begin_inset Formula $\Sigma$
+\end_inset
+
+) dependiente de la distancia de las localizaciones de las observaciones.
+\end_layout
+
+\begin_layout Standard
+La prediccipn puntual que plantea kriging para 
+\begin_inset Formula $Z_{0}=Z\left(s_{0}\right)$
+\end_inset
+
+ suede escribirse así
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\widehat{Z}_{0}=X_{0}\boldsymbol{\widehat{\boldsymbol{\beta}}}+\boldsymbol{v}V^{-1}\left(\boldsymbol{Z}-X\boldsymbol{\widehat{\boldsymbol{\beta}}}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+donde
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\widehat{Z}_{0}$
+\end_inset
+
+ es la respuesta a predecir para la la posicón 
+\begin_inset Formula $s_{0}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\boldsymbol{Z}$
+\end_inset
+
+ es el vector de valores observados de las muestras localizadas en 
+\begin_inset Formula $s_{1}\ldots s_{n}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\boldsymbol{X}_{0}$
+\end_inset
+
+ es el vector de preditoras asociadas a la respuesta 
+\begin_inset Formula $Z_{0}=Z\left(s_{0}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\boldsymbol{\widehat{\beta}}$
+\end_inset
+
+ es el vector estimado de coeficientes que capta el efecto de las predictoras
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\boldsymbol{v}$
+\end_inset
+
+ es el vector de covarianzas entre los errores de 
+\begin_inset Formula $Z_{0}$
+\end_inset
+
+ y 
+\begin_inset Formula $Z$
+\end_inset
+
+, que depende esencialmente de las distancias de 
+\begin_inset Formula $s_{0}$
+\end_inset
+
+ al resto de las observaciones 
+\begin_inset Formula $s_{1}\ldots s_{n}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $V$
+\end_inset
+
+ es la estimación de la matriz de covarianzas de los errores 
+\begin_inset Formula $\Sigma$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $X$
+\end_inset
+
+ es la matriz de datos
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+De la expresión surge claramente que la predicción contempla dos efectos,
+ el efecto de las predictoras en el punto de interés 
+\begin_inset Formula $X_{0}\boldsymbol{\widehat{\beta}}$
+\end_inset
+
+ y el efecto que los residuos 
+\begin_inset Formula $\left(\boldsymbol{Z}-X\boldsymbol{\widehat{\beta}}\right)$
+\end_inset
+
+ tienen, dependiendo de las distancias al punto en cuaestión 
+\begin_inset Formula $s_{0}$
+\end_inset
+
+, esto último captado por los pesos de kriging 
+\begin_inset Formula $\boldsymbol{v}V^{-1}$
+\end_inset
+
+.
+ Nótese que ante la falta de autocorrelación espacial (
+\begin_inset Formula $\boldsymbol{v}=\boldsymbol{0}$
+\end_inset
+
+) el segundo término se anula, y el predictor coincide con un simple predictor
+ lineal.
+\end_layout
+
+\begin_layout Standard
+Asimismo, en el caso general en el que existe autocorrelación espacial.
+ el estimador del vector de coeficientes es
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\boldsymbol{\widehat{\beta}}=\left(XV^{-1}X^{T}\right)X^{T}V^{-1}Y
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+que es el estimador GLS considerando la (estimacion) de la estructura de
+ correlación de los errores dependiente del espacio.
+\end_layout
+
+\begin_layout Standard
+La estimación 
+\begin_inset Formula $V$
+\end_inset
+
+ de la matriz de covarianzas de los errores 
+\begin_inset Formula $\Sigma$
+\end_inset
+
+, no es una tarea trivial, pues la misma contempla (potencialmente) todas
+ las covarianzas de los pares de observaciones (en realidad de sus errores)
+ de la muestra.
+ Es casi imposible estimar esta matriz sin imponer una fuerte estrucura
+ a la misma.
+ El planteo que propone kriging es el de postular una relación directa entre
+ esta matriz y la dependencia espacial de los residuos en términaos de sus
+ distancias espaciales.
+ A esta dependencia espacial de la variabilidad en función de la distancia
+ se la denomina 
+\series bold
+Variograma
+\series default
+.
+ 
+\end_layout
+
+\begin_layout Subsection*
+El Variograma
+\end_layout
+
+\begin_layout Standard
+Sea un proceso espacial 
+\begin_inset Formula $Z\left(\boldsymbol{s}\right)$
+\end_inset
+
+.
+ Tomemos dos elementos del proceso, ubicados en 
+\begin_inset Formula $\boldsymbol{s}_{1}$
+\end_inset
+
+ y en 
+\begin_inset Formula $\boldsymbol{s}_{2}$
+\end_inset
+
+.
+ El variograma mide la dependencia espacial entre estos elementos, de la
+ siguiente manera:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+\gamma\left(\boldsymbol{s}_{1},\boldsymbol{s}_{2}\right) & =Var\left(Z\left(\boldsymbol{s}_{1}\right)-Z\left(\boldsymbol{s}_{2}\right)\right)=\\
+ & =E\left(Z\left(\boldsymbol{s}_{1}\right)+E\left(Z\left(\boldsymbol{s_{2}}\right)\right)-Z\left(\boldsymbol{s}_{2}\right)-E\left(Z\left(\boldsymbol{s}_{1}\right)\right)\right)^{2}
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si el proceso es homgeneo entonces 
+\begin_inset Formula $E\left(Z\left(\boldsymbol{s}_{1}\right)\right)=E\left(Z\left(\boldsymbol{s}_{2}\right)\right)$
+\end_inset
+
+ por lo que
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\gamma\left(\boldsymbol{s}_{1},\boldsymbol{s}_{2}\right)=E\left(Z\left(\boldsymbol{s}_{1}\right)-Z\left(\boldsymbol{s}_{2}\right)\right)^{2}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si el proceso es estacionario e isotrópico entonces podemos eliminar los
+ índices y pensar que 
+\begin_inset Formula $Z\left(\boldsymbol{s}_{1}\right)=Z\left(\boldsymbol{s}\right)$
+\end_inset
+
+ y 
+\begin_inset Formula $Z\left(\boldsymbol{s}_{2}\right)=Z\left(\boldsymbol{s}+\boldsymbol{h}\right)$
+\end_inset
+
+, por lo que
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\gamma\left(\boldsymbol{s}_{1},\boldsymbol{s}_{2}\right)=E\left(Z\left(\boldsymbol{s}\right)-Z\left(\boldsymbol{s}+\boldsymbol{h}\right)\right)^{2}=\gamma\left(\boldsymbol{h}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Que es una función que sólo depende del vector de separación 
+\begin_inset Formula $\boldsymbol{h}$
+\end_inset
+
+.
+ Es claro que 
+\begin_inset Formula $\gamma\left(\boldsymbol{h}\right)\geq0\forall\boldsymbol{h}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Pero hay que tener mucho cuidado ! Pues si la variable 
+\begin_inset Formula $Z$
+\end_inset
+
+ muestra una tendencia espacial importante, o está influenciada por predictoras
+ con un fuerte componente espacial, el variograma se verá afectado por estas
+ relaciones, confundiendo efectos locales que dependen de la distancia,
+ con efectos globales que dependen del espacio a nivel global.
+\end_layout
+
+\begin_layout Standard
+Así, en estos casos más generales, que modelamos con 
+\begin_inset Formula 
+\[
+Z\left(S\right)=\mu\left(S\right)+\varepsilon_{\Sigma}\left(S\right)
+\]
+
+\end_inset
+
+ suele definirse el variograma en función de los errores 
+\begin_inset Formula $\varepsilon$
+\end_inset
+
+, por lo que expresamos al variograma de la siguiente manera
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\gamma\left(\boldsymbol{h}\right)=E\left(\varepsilon\left(\boldsymbol{s}\right)-\varepsilon\left(\boldsymbol{s}+\boldsymbol{h}\right)\right)^{2}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+donde 
+\begin_inset Formula $\varepsilon\left(\boldsymbol{s}\right)$
+\end_inset
+
+ y 
+\begin_inset Formula $\varepsilon\left(\boldsymbol{s}+\boldsymbol{h}\right)$
+\end_inset
+
+ son dos errores distintos cualesquiera, asociados a las observaciones,
+ separados por el vector 
+\begin_inset Formula $\boldsymbol{h}$
+\end_inset
+
+.
+ Estrictamente, esta definición obedece al 
+\series bold
+semivariograma
+\series default
+, que es la mitad del variograma, sin embargo de ahora en más omitiremos
+ esta distinción y lo llamaremos variograma, despues de todo sólo difieren
+ en una constante (
+\begin_inset Formula $1/2$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+Varios aspectos fundamentales del variograma deben ser comsiderados: 
+\end_layout
+
+\begin_layout Itemize
+El varograma, así definido, sólo depende del vector de distancia 
+\series bold
+
+\begin_inset Formula $\boldsymbol{h}$
+\end_inset
+
+
+\series default
+ entre las observaciones, NO del lugar del espacio en cuestión (
+\begin_inset Formula $\boldsymbol{s}$
+\end_inset
+
+), por lo que se siupone que el proceso de medición, una vez descontado
+ los efectos de las predictoras, es 
+\series bold
+homogeneo
+\series default
+.
+\end_layout
+
+\begin_layout Itemize
+Para 
+\begin_inset Formula $\boldsymbol{h}=\boldsymbol{0}$
+\end_inset
+
+ la función debiera tomar el valor 
+\begin_inset Formula $0$
+\end_inset
+
+, pues 
+\begin_inset Formula $E\left(\varepsilon\left(\boldsymbol{s}\right)-\varepsilon\left(\boldsymbol{s}\right)\right)^{2}=0$
+\end_inset
+
+.
+ Sin embargo, en la práctica sólo pueden considerarse mediciones del variograma
+ superiores a una distancia mínima, para la cual se obtienen valores de
+ variogrma también mínimos.
+ A este valor inicial y mínimo del variograma se lo llama 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+nugget
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Como los errores tienen media 
+\begin_inset Formula $0$
+\end_inset
+
+, por definición 
+\begin_inset Formula $\gamma\left(\boldsymbol{h}\right)=Var\left(\varepsilon\left(\boldsymbol{s}\right)-\varepsilon\left(\boldsymbol{s}+\boldsymbol{h}\right)\right)$
+\end_inset
+
+, es decir que el variograma no es otra cosa que la varianza de la discrepancia
+ entre los errores separados por 
+\begin_inset Formula $\boldsymbol{h}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Puede verse que 
+\begin_inset Formula $\gamma\left(\boldsymbol{h}\right)=2Var\left(\varepsilon\left(\boldsymbol{s}\right)\right)-2Cov\left(\varepsilon\left(\boldsymbol{s}\right),\varepsilon\left(\boldsymbol{s}+\boldsymbol{h}\right)\right)$
+\end_inset
+
+, lo que muestra que el variograma, para un valor de 
+\begin_inset Formula $\boldsymbol{h}$
+\end_inset
+
+ dado, depende positivamente de la variabilidad del proceso, y negativamente
+ de la covarianza del mismo.
+\end_layout
+
+\begin_layout Itemize
+A partir de una cierta distancia 
+\begin_inset Formula $\Vert\boldsymbol{h}\Vert>r$
+\end_inset
+
+ (a este 
+\begin_inset Formula $r$
+\end_inset
+
+ se lo llama 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+ran
+\series default
+ge
+\begin_inset Quotes eld
+\end_inset
+
+), debiera suceder que 
+\begin_inset Formula $Cov\left(\varepsilon\left(\boldsymbol{s}\right),\varepsilon\left(\boldsymbol{s}+\boldsymbol{h}\right)\right)=0$
+\end_inset
+
+, por lo que 
+\begin_inset Formula $\gamma\left(\boldsymbol{h}\right)=2Var\left(\varepsilon\left(\boldsymbol{s}\right)\right)$
+\end_inset
+
+, y el variograma debiera volverse una constante que sólo dependa de la
+ variaza de 
+\begin_inset Formula $\varepsilon$
+\end_inset
+
+, es decir de 
+\begin_inset Formula $\sigma^{2}\left(\varepsilon\right)$
+\end_inset
+
+.
+ A este valor constante se lo llama 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+sill
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Usualmente el variograma se modela paramétricamente mediante algunos modelos
+ relativamente sencillos que dependen de pocos parámetros.
+ La elección del tipo de modelo se realiza en general a partir de versiones
+ empíricas del variograma.
+ La versión empírica delvariograma mas usual consiste en armar buckets de
+ distancias, y para cada bucket calcular el promedio de los cuadrados de
+ las diferecnias entre residuos, para aquellas observaciones cuyas distancias
+ caigan en ese bucket.
+\end_layout
+
+\begin_layout Standard
+Uno de los modelos paramétricos más comunes de variograma es el exponencial,
+ que se define así
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\gamma\left(h\right)=\left(sill-nug\right)\left(1-exp\left(-\frac{h}{a*range}\right)\right)+nug*1\left(h>0\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Este modelo depende de los parámetros:
+\end_layout
+
+\begin_layout Itemize
+nug: nugget, el mínimo valor del variograma cerca de las distancia cero
+\end_layout
+
+\begin_layout Itemize
+range: rango, el lapso de distancia hasta que el variograma alcanza un valor
+ constante
+\end_layout
+
+\begin_layout Itemize
+sill: el valor constante asintótico del variograma
+\end_layout
+
+\begin_layout Itemize
+a: constante de escala dependiente de la distancia, usualmente ogial a 
+\begin_inset Formula $1$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Veamos un ejemplo de variograma empírico (puntos azules), con la superposición
+ de un modelo exponencial (curva negra).
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename El Variograma.png
+	scale 37
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La figura muestra (al menos lo intenta) el proceso de armado del variograma
+ empírico, para el cual se determinan los buckets de distancias (lineas
+ punteadas naranjas), y se calculan los promedios de las diferencias al
+ cuadrado de los valores entre los pares de residuos que quedan a distancias
+ comprendidas en esos buckets (elipses naranjas de la derecha).
+ Finalmente, los parámetros del modelo exponencial son ajustados a los valores
+ del variograma empírico, para obtener así la estimación de la matriz de
+ covarianzas 
+\begin_inset Formula $V$
+\end_inset
+
+ que dependerá sólo de las distancias entre observaciones a traves del modelo
+ exponencial.
+\end_layout
+
+\begin_layout Subsection*
+Ejemplo de Kriging a Datos Simulados
+\end_layout
+
+\begin_layout Standard
+Trabajaremos con los mismos 
+\begin_inset Formula $N=300$
+\end_inset
+
+ datos simulados que utilizamos para el método de interpolación IWD.
+\end_layout
+
+\begin_layout Standard
+Empecemos mostrando para estos datos el variograma empírico junto con el
+ ajuste de un modelo exponencial.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Variograma datos juguete.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El ajuste no es muy bueno porque, en este caso, se aprecia un efecto llamado
+ 
+\begin_inset Quotes eld
+\end_inset
+
+hole-effect
+\begin_inset Quotes erd
+\end_inset
+
+, producto de un comportamiento cíclico que suele hallarse en fenómenos
+ espaciales autocorrelacionados cuando los residuos se agrupan en valores
+ similares a los largo del espacio a distancias medianas y grandes.
+ Esto produce que a lags de distancias grandes disminuya el valor del variograma
+, pues los residuos miestran comportamientos similares debido al agrupamiento
+ de los mismos.
+ De todas maneras no ajustaremos este efecto (se puede, usando modelos apropiado
+s que suman componentes sinusoidales al variograma teórico), pues lo más
+ mportante del modelado consiste en considerar el primer tramo creciente,
+ en el que se capta la fuerte autocorrelación espacial del fenómeno.
+\end_layout
+
+\begin_layout Standard
+Ajustaremos ahora un modelo que involucre una componente determinística
+ y una estocástica 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Z\left(S\right)=X\left(S\right)\beta+\varepsilon_{\varSigma}\left(S\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En nuestro caso el modelo propuesto presentará una tendencia espacial lineal
+ (como la verdadera, con la que se generaron los datos), y la componente
+ de autocorrelación modelada con el modelo de variograma exponencial
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Z\left(S\right)=\mu+x_{1}\beta_{1}+x_{2}\beta_{2}+\varepsilon_{V_{Exp}}\left(S\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Veamos ahora el campo predicho por este modelo
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Interpolacion por Kriging.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Es interesante notar que el resultado es muy parecido al de la interpolación
+ mediante IDW (compare ambos gráficos).
+ Pero entonces, cual es la ventaja de kriging ? Varias vemtajas:
+\end_layout
+
+\begin_layout Itemize
+La posibilidad de incorporar (controlar por) covariables predictoras, sean
+ espaciales o no.
+\end_layout
+
+\begin_layout Itemize
+La estimación del efecto de las predictoras que conforman la componente
+ determinística del modelo.
+\end_layout
+
+\begin_layout Itemize
+La obtención de una medida creible de incertidumbre de la predicción, provenient
+e de los desvios estandar calculados por el modelo.
+\end_layout
+
+\begin_layout Standard
+Veamos, en relación a el último punto, el mapa de incertidumbre (varianza)
+ en las predicciones.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Varianzas kriging.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Como es razonable, las mayores varianzas se encuentran en los bordes de
+ la región de análisis y en las zonas de menor concentración de eventos.
+\end_layout
+
+\begin_layout Standard
+Otra forma de ver el ajuste es un gráfico de perspectiva en que se muestra
+ el ajuste de kriging junto con las observaciones.
+ 
+\end_layout
+
+\begin_layout Standard
+\align left
+\begin_inset Graphics
+	filename persp kriging.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Veáse que la interpolación es una mezcla del efecto de tendencia espacial
+ (creciente de izquierda a derecha y de abajo hacia arriba), junto con el
+ efecto local producto del modelado de la autocorrelación (picos y valles
+ por sobre la tendencia).
+\end_layout
+
+\begin_layout Standard
+Finalmente veamos la estimación de la componente determinística del modelo,
+ la tendencia lineal espacial del ṕroceso.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Comp deterministica kriging.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Se aprecia un gradiente más pronunciado en la componente 
+\begin_inset Formula $x_{1}$
+\end_inset
+
+ comparado con la componente 
+\begin_inset Formula $x_{2}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection*
+Ejemplo de Kriging a Datos Reales
+\end_layout
+
+\begin_layout Standard
+Aplicaremos ahora la técnica de kriging a unos 
+\begin_inset Formula $1378$
+\end_inset
+
+ departamentos que se encuentran a la venta en la base de Properati, para
+ los barrios de Flores y Caballito.
+ El mapa que sigue muestra la ubicación de los departamentos, junto con
+ sus precios en unidades de u$s 
+\begin_inset Formula $100.000$
+\end_inset
+
+ (para simplificar la notación).
+ 
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Deptos para Kriging.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El variograma tipo 
+\begin_inset Quotes eld
+\end_inset
+
+cloud
+\begin_inset Quotes erd
+\end_inset
+
+ se presenta en el próximo gráfico.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Cloud Variogram.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Se aprecia que existe una alta variabilidad para las muy pequeñas distancias,
+ pese a que el análisis se realizó con los residuos de un modelo que contempla
+ la inclusión de la covariable superficie cubierta y una componente espacial
+ lineal.
+ Este hecho parece razonable si se considera que estamos dejando fuera una
+ gran cantidad de factores explicativos, que podrían reducir la variabilidad
+ si se los incluyera en el modelo.
+\end_layout
+
+\begin_layout Standard
+A continuación ajustamos un modelo de variograma exponencial a los datos
+ 
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Modelo de variograma deptos.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Como mencionamos previamente, la alta variabilidad en distancias cortas
+ se modela en este caso con un nugget relativamente alto.
+ 
+\end_layout
+
+\begin_layout Standard
+Así, el modelo que estimaremos contempla la componente espacial lineal,
+ la superficie del departamento como covariable predictora, y la estructura
+ de autocorrelación entre errores siguiendo un modelo exponencial.
+ El mapa de predicción de kriging, para un departamento de 
+\begin_inset Formula $70$
+\end_inset
+
+ metros cuadrados, puede verse en la próxima figura
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Prediccion Kriging Deptos.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Es evidente que el máximo de predicción se dá en el suroeste de la región
+ de análisis.
+ Las predicciones varían en más de u$s 
+\begin_inset Formula $100.000$
+\end_inset
+
+ entre las zonas más caras y las más baratas.
+\end_layout
+
+\begin_layout Standard
+La tendencia espacial estimada se muestra en el próximo gráfico
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Tendencia kriging deptos.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El gradiente de precios apunta al noreste de forma suave, con una variabilidad
+ espacial de unos u$s 
+\begin_inset Formula $60.000$
+\end_inset
+
+ en toda la extensión de la región de estudio.
+\end_layout
+
+\begin_layout Standard
+Para mejorar la comprensión de la interpolación, suele ser util superponer
+ a la superficie de predicción un mapa geográfico de la zona.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Prediccion con mapa.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En este caso se ve claramente el incremento del valor predicho (unos u$s
+ 
+\begin_inset Formula $70.000$
+\end_inset
+
+) de un departamento de 
+\begin_inset Formula $70$
+\end_inset
+
+ metros cuadrados, cuando nos desplazamos apenas 
+\begin_inset Formula $1$
+\end_inset
+
+ kilometro de Flores a Caballito.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+Geographically Weighted Regression (GWR)
+\end_layout
+
+\begin_layout Standard
+GWR es una técnica de regresión que modela en forma paramétrica la relación
+ entre el target 
+\begin_inset Formula $Y$
+\end_inset
+
+ y los features 
+\begin_inset Formula $X$
+\end_inset
+
+ a través de parámetros que dependen potencialmente del espacio (con coordenadas
+ 
+\begin_inset Formula $u$
+\end_inset
+
+ y 
+\begin_inset Formula $v$
+\end_inset
+
+).
+ En fórmula
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Y_{i}=\boldsymbol{\boldsymbol{\beta}}^{T}\left(u_{i},v_{i}\right)\boldsymbol{\boldsymbol{X}_{i}}\left(u_{i},v_{i}\right)+\epsilon_{i}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El exceso de notación en la escritura del vector de predictoras 
+\begin_inset Formula $\boldsymbol{\boldsymbol{X}_{i}}\left(u_{i},v_{i}\right)$
+\end_inset
+
+ responde a la necesidad de enfatizar que cada atributo (o marca) de un
+ elemento de la muestra tiene una ubicación específica en el espacio 
+\begin_inset Formula $\left(u_{i},v_{i}\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+La flexibilidad agregada en esta técnica al modelo de regresión tradicional
+ es la de permitir que los parámetros puedan variar en función del espacio,
+ simultaneamente permitiendo que la relación determinística entre la 
+\begin_inset Formula $Y$
+\end_inset
+
+ y las 
+\begin_inset Formula $X$
+\end_inset
+
+s también cambie en el espacio.
+ Por supuesto, no todas las covariables 
+\begin_inset Formula $X$
+\end_inset
+
+s deben tener relaciones con dependencia espacial.
+ De hecho, el modelo lineal tradicional, en el que los coeficientes no dependen
+ del espacio es un caso particular de este modelo.
+\end_layout
+
+\begin_layout Standard
+Claramente, es imposible estimar un conjunto de parámetros distinto para
+ punto muestral del espacio.
+ Esto llevaría a tener muchos más parámetros que datos observados.
+ Por lo que algún tipo de restricción a la libertad de los parámetros será
+ necesaria.
+ La heurística usual en problemas espaciales (y temporales) es la de pensar
+ que ámbitos espacialmente cercanos comparten comportamientos similares.
+ Es así que la estimación de los coeficientes se realiza mediante ventanas
+ móviles en las que, centradas en cada punto de observación, se define un
+ sistema de ponderadores.
+ En cada punto las observaciones más cercanas reciben una mayor ponderación
+ que las más alejadas.
+ La técnica de ventanas también puede definirse usando entornos definidos
+ por los 
+\begin_inset Formula $k$
+\end_inset
+
+ vecinos más cercanos, creando de esta forma ventanas adaptativas que dependerán
+ de la densidad espacial de observaciones en cada punto del espacio.
+\end_layout
+
+\begin_layout Standard
+Sea cual sea la estrategia de elección de ponderadores del entorno, la estimació
+n se reduce simplemente a un problema de mínimos cuadrados pesados, en donde
+ la matriz de pesos dependerá del punto 
+\begin_inset Formula $\left(u,v\right)$
+\end_inset
+
+ de análisis.
+ Así la estimación de los coeficientes puede hallarse mediante la ecuación
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\widehat{\boldsymbol{\beta}}\left(u,v\right)=\left(X^{T}W\left(u,v\right)X\right)^{-1}X^{T}W\left(u,v\right)\boldsymbol{Y}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La elección de la matriz 
+\begin_inset Formula $W$
+\end_inset
+
+ suele obedecer a una lógica basada en las distancias, de modo tal que 
+\begin_inset Formula $W\left(u,v\right)$
+\end_inset
+
+ es una matriz diagomal en la que los elementos de la diagonal 
+\begin_inset Formula $\left\{ w_{i,i}\right\} $
+\end_inset
+
+ cumplen con 
+\begin_inset Formula $w_{i,i}=g\left(d\left(\left(u,v\right),\left(u_{i},v_{i}\right)\right)\right)$
+\end_inset
+
+, en la que 
+\begin_inset Formula $\left(u_{i},v_{i}\right)$
+\end_inset
+
+ es la ubicación de la observación i-ésima, y 
+\begin_inset Formula $g:\mathbb{\mathbb{R}\rightarrow R}$
+\end_inset
+
+ es alguna función decreciente (o no creciente) arbitrariamente definida.
+\end_layout
+
+\begin_layout Standard
+Así definida, es claro que la matriz 
+\begin_inset Formula $W\left(u,v\right)$
+\end_inset
+
+ cambia para cada punto del espacio, pues cambian todas las distancias de
+ 
+\begin_inset Formula $\left(u,v\right)$
+\end_inset
+
+ a todos los puntos de la muestra (
+\begin_inset Formula $d\left(\left(u,v\right),\left(u_{i},v_{i}\right)\right)$
+\end_inset
+
+).
+ Por este motivo, el estimador GWR puede pensarse como un estimador de mínimos
+ cuadrados pesados, 
+\series bold
+PERO 
+\series default
+los pesos cambian para cada punto.
+ Por lo que el estimador es distinto en cada punto del espacio.
+\end_layout
+
+\begin_layout Standard
+Una vez obtenida la estimación de los parámetros para un punto del espacio
+ 
+\begin_inset Formula $\widehat{\boldsymbol{\beta}}\left(u,v\right)$
+\end_inset
+
+, es trivial calcular la predicción para ese mismo punto
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\widehat{Y}\left(u,v\right)=\boldsymbol{\widehat{\boldsymbol{\beta}}}\left(u,v\right)^{T}\boldsymbol{X}\left(u,v\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Tipicamente, no poseemos mediciones de atributos en puntos genéricos del
+ espacio, por lo que el predictor suele evaluarse en las ubicaciones de
+ los puntos de la muestra, es decir
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\widehat{Y}\left(u_{i},v_{i}\right)=\boldsymbol{\widehat{\boldsymbol{\beta}}}\left(u_{i},v_{i}\right)^{T}\boldsymbol{X}\left(u_{i},v_{i}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+No debe sorprendernos saber que este mismo mecanismo de estimación proveé
+ naturalmente de estimaciones de errores de predicción, y de los parámetros
+ estimados (veasé F.
+ Otheringham (2002)).
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+Ejemplo: Modelado del Precio de los Departamentos
+\end_layout
+
+\begin_layout Standard
+Utilizaremos ahora la información (precios de venta, superficie cubierta,
+ cantidad de cuartos, etc.) de 
+\begin_inset Formula $2248$
+\end_inset
+
+ departamentos en venta en los barrios de Flores y Caballito de la Ciudad
+ Autónoma de Buenos Aires.
+ La ubicación de las propiedades se muestra en el siguiente gráfico, con
+ los colores de los puntos indicando el precio
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Precios.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Puede verse claramente que los precios se desparraman por los barrios, en
+ parte por las diferencias de características de los mismos, en especial
+ por la superficie cubierta.
+ De hecho, un gráfico de dispersión del precio en función de la superficie
+ muestra una relación lineal fuerte.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Precio versus sup.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Parece razonable entonces proponer un modelo lineal que explique el precio
+ de los departamentos en función de la superficie cubierta.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Precio_{i}=\mu+\beta\,Superficie_{i}+\epsilon_{i}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El modelo produce un buen ajuste, con un valor de 
+\begin_inset Formula $R^{2}=0.75$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Sin embargo, como es de esperar, este ajuste global no da cuenta de la component
+e espacial que seguramente está presente en este fenómeno.
+ En efecto, si graficamos los residuos (escalados por la raiz cuadrada)
+ del modelo en el mapa obtenemos lo siguiente
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Residuos escalados.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nótese como existe un comportamiento espacial sistemático de los residuos.
+ Los puntos se hallan fuertemente agrupados según su color (valor), en especial
+ en la zona sur del mapa.
+ Esto significa que el modelo global, al no incorporar el componente espacial,
+ está perdiendo efectividad en la estimación, al no incorporar el aspecto
+ espacial.
+\end_layout
+
+\begin_layout Standard
+Apliquemos ahora la técnica de GWR, usando el mismo modelo del precio como
+ función de la superficie cubierta.
+ En este caso, el modelo podría escribirse como
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Precio_{i}=\mu\left(u_{i},v_{i}\right)+\beta\left(u_{i},v_{i}\right)\,Superficie_{i}+\epsilon_{i}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Los coeficientes estimados (localmente) se presentan en el próximo gráfico
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename coef de GWR.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+No sólo ambos coeficientes varían espacialmente, sino que ambos lo hacen
+ en forma opuesta, produciendo rectas de regresión distintas para cada zona
+ o lugar.
+\end_layout
+
+\begin_layout Standard
+Finalmente, podemos producir mapas de precios predichos para departamentos
+ con la misma supericie, como se muestra en el próximo gráfico, en el que
+ predecimos los precios de departamentos de 
+\begin_inset Formula $70$
+\end_inset
+
+ metros cuadrados.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Prediccion 70 metros.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Es evidente que la componente espacial juega un rol fundamental en la valuación
+ de los departamentos, incluso cuando controlamos (dejamos fija) la característi
+ca más importante, la superficie cubierta.
+ De hecho, el modelo 
+\begin_inset Quotes eld
+\end_inset
+
+descubre
+\begin_inset Quotes erd
+\end_inset
+
+ diferentes relaciones entre precio y superficie, para diferentes lugares
+ del espacio, como se muestra en el próximo gráfico
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename Multiples Regresiones.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Las lineas magenta represenran los distintos modelos lineales estimados
+ en cada punto muestral del espacio.
+ En cierta medida, esto muestra que puede pensarse a la GWR como una técnica
+ que propone un modelo de 
+\series bold
+mezcla
+\series default
+ de regresiones indexados en el dominio espacial.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+Spatial Autoregression Models (SAR)
+\end_layout
+
+\begin_layout Standard
+Estos modelos plantean explicitamente la autocorrelación existente entre
+ las observaciones de la variable 
+\begin_inset Formula $Y$
+\end_inset
+
+, proponiendo una 
+\begin_inset Quotes eld
+\end_inset
+
+inercia
+\begin_inset Quotes erd
+\end_inset
+
+ espacial que depende de la cercanía entre las observaciones 
+\begin_inset Formula $W$
+\end_inset
+
+, a saber
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Y=\mu1+\beta X+\rho W\left(Y-\mu1\right)+\epsilon
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+donde
+\end_layout
+
+\begin_layout Standard
+Este modelo puede estimarse en R mediante la función 
+\begin_inset Quotes eld
+\end_inset
+
+lagsarlm
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

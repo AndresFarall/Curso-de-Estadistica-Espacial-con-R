@@ -1,0 +1,734 @@
+---
+title: "Estadistica Espacial Aplicada"
+author: "Andres Farall"
+date: "18 de Agosto de 2021"
+output:
+  pdf_document:
+    toc: yes
+  html_notebook:
+    theme: lumen
+    toc: yes
+    toc_float: yes
+  html_document:
+    df_print: paged
+    toc: yes
+subtitle: Ejemplificacion con la base de Properati
+---
+
+
+
+###  Lectura del dataset y su estructura
+
+```{r}
+# leo el archivo ar_properties 
+library(tidyverse) # libreria para data wrangling
+datos1a <- read_csv("ar_properties.csv") # Acá completen con su propio PATH al archivo
+datos1a # veo la base
+```
+
+### Aplicando filtros
+
+Se seleccionan aquellos registros que pertenecen a Argentina y Capital Federal, cuyo precio esta en dolares (USD), el tipo de propiedad corresponde a Departamento y el tipo de operacion sea Venta. 
+
+```{r}
+datos1b <- datos1a %>% 
+                   # Me quedo con los que pertenecen a Argentina y Capital Federal
+            filter(l1 == "Argentina", 
+                   l2 == "Capital Federal", 
+                   # cuyo precio este en dolares 
+                   currency == "USD", 
+                   # propiedad tipo Departamento
+                   property_type %in% c("Departamento"),
+                   # operaciones de venta
+                   operation_type == "Venta",
+                   # acoto por precio y superficie
+                   between(surface_covered,11,500),between(price,1000,2e6)) %>% select(id,l3,surface_covered,price,lat,lon,rooms,bathrooms,bedrooms) %>% mutate(pm2=price/surface_covered) %>% rename(precio=price,barrio=l3,sup=surface_covered,ambientes=rooms,baths=bathrooms,cuartos=bedrooms) %>% na.omit()
+# chequeo si el filtro se refleja correctamente en mi nuevo dataset datos1b
+datos1b 
+attach(datos1b) # pongo las variables en memoria
+```
+
+Cargo las librerias basicas para trabajar con datos espaciales
+
+```{r}
+library(terra)
+library(sf)
+#vignette(package = "sf")
+#vignette("sf1",package = "sf")
+library("leaflet")
+library(tmap)
+library(OpenStreetMap)
+```
+
+### Datos Vectoriales
+
+## Cargo deptos como Puntos
+
+```{r}
+# transformo el dtaset a sf, con proyeccion EPSG 4326, equivalente a WGS84
+deptos.sf <- datos1b %>% st_as_sf(coords = c("lon", "lat"), crs = 4326)
+deptos.sf
+class(deptos.sf)
+# Version alternativa usando terra
+#lonlat <- cbind(datos1b$lon, datos1b$lat)
+#df <- data.frame(ID=datos1b$id, datos1b$sup)
+#crdref <- "+proj=longlat +datum=WGS84"
+#deptos <- vect(lonlat, atts=df, crs=crdref) # with terra
+#deptos.sf <- sf::st_as_sf(deptos) # conversion to sf
+#plot(pts)
+# grafico 
+plot(deptos.sf)
+plot(deptos.sf[,"barrio"]) # solo el campo l3
+# con leaflet
+leaflet(deptos.sf) %>% addTiles() %>% addCircleMarkers(radius=0.2)
+# with ggplot
+ggplot() + geom_sf(data = deptos.sf, size = 0.3)
+# con tmap
+tmap_mode('view')
+qtm(deptos.sf, style = "natural")
+```
+
+## cargo calles de CABA
+
+
+```{r}
+# cargo el shape de calles de CABA
+calles.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/callejero/")
+# me quedo con algunos features
+calles<-calles.comp[,c("id","tipo_c","nom_mapa","long")]
+plot(calles)
+# selecciono solo las avenidas
+avenidas<-calles[calles$tipo_c=="AVENIDA",]
+plot(avenidas)
+nombres.ave<-avenidas$nom_mapa
+# av rivadavia 
+cuales<-grep("RIVADAVIA",nombres.ave)
+rivadavia<-avenidas[cuales,]
+plot(rivadavia)
+# largo de la ave rivadavia
+sum(rivadavia$long)
+# geometria de la ave rivadavia
+rivadavia.geo<-rivadavia$geometry
+# grafico con leaflet de avenidas
+leaflet(avenidas) %>% addTiles() %>% addPolylines()
+# grafico con leaflet de Rivadavia
+leaflet(rivadavia) %>% addTiles() %>% addPolylines()
+
+```
+
+## Carga de Barrios CABA
+
+```{r}
+# cargo barrios
+barrios.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/barrios/")
+barrios.comp
+plot(barrios.comp)
+# me quedo solo con feature de barrio
+barrios<-barrios.comp[1]
+barrios
+plot(barrios)
+# la geometria
+barrios$geometry
+class(barrios)
+plot(barrios[1:5,])
+print(barrios.comp, n = 3)
+# union de barrios
+union._barrios<-st_union(barrios)
+union._barrios
+plot(union._barrios)
+# grafico con leaflet
+leaflet(barrios) %>% addTiles() %>% addPolygons()
+```
+
+## Carga de Comunas CABA
+
+```{r}
+comunas.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/comunas/")
+comunas.comp
+plot(comunas.comp)
+comunas<-comunas.comp[1]
+plot(comunas)
+
+```
+
+Grafico de deptos, avenidas, comunas y barrios
+
+```{r}
+# todo
+leaflet() %>% addTiles() %>% addPolygons(data=barrios,color = "green") %>% addPolygons(data=comunas,color = "red") %>% addCircles(data=deptos.sf,radius=0.01) %>% addPolylines(data=avenidas,color = "black")
+# un poco
+leaflet() %>% addTiles() %>% addPolygons(data=barrios,color = "green") %>% addPolygons(data=comunas,color = "red") %>% addCircles(data=deptos.sf[1:1000,],radius=0.01) %>% addPolylines(data=rivadavia,color = "black")
+
+# barrios with ggplot
+ggplot() + geom_sf(data = deptos.sf, size = 0.3,color="grey") + geom_sf(data = barrios, aes(fill = BARRIO), alpha = 0.5) + geom_sf(data=rivadavia)
+# comunas with ggplot
+ggplot() + geom_sf(data = deptos.sf, size = 0.3,color="grey") + geom_sf(data=comunas.comp, aes(fill = COMUNAS), alpha = 0.5) + geom_sf(data=rivadavia)
+
+```
+
+
+## Manipulacion y Operacion con objetos espaciales
+
+# Operadores binarios o binary predicates
+
+Que Comuna incluye a Versalles ?
+
+```{r}
+#
+sf::sf_use_s2(FALSE)
+vers<-barrios[barrios$BARRIO=="VERSALLES",]
+com10<-comunas.comp[comunas.comp$COMUNAS==10,]
+plot(com10$geometry)
+plot(vers$geometry,add=T,col="green")
+# esta versalles en la comuna 10 ?
+st_contains(com10,vers,sparse = FALSE)
+# que barrios estan en que comunas
+test1 <- st_intersects(comunas.comp,barrios,sparse = FALSE)
+test1
+```
+
+Que deptos caen en versalles ?
+
+
+```{r}
+test2 <- st_within(deptos.sf,vers,sparse = FALSE)
+sum(test2)
+plot(com10$geometry)
+plot(vers$geometry,add=T,col="green")
+plot(deptos.sf$geometry[test2],add=T,col="blue")
+
+```
+
+Que deptos estan a menos de 100 metros de Rivadavia 
+
+```{r}
+test3 <- st_is_within_distance(deptos.sf,rivadavia,dist = 500,sparse = FALSE)
+dim(test3)
+class(test3)
+test3[1:10,1:6]
+cuales.deptos<-apply(test3,1,sum)
+sum(cuales>0)
+length(cuales.deptos)
+ggplot() + geom_sf(data = deptos.sf, size = 0.3,color="grey") + geom_sf(data = deptos.sf[cuales.deptos>0,], size = 0.5,color="blue") + geom_sf(data=rivadavia)
+
+```
+
+Combinacion de features
+
+```{r}
+# uniendo tramos de rivadavia
+rivadavia.unida<-st_combine(rivadavia)
+rivadavia.unida
+ggplot() + geom_sf(data=comunas.comp, aes(fill = COMUNAS), alpha = 0.5) + geom_sf(data=rivadavia)
+
+ggplot() + geom_sf(data=comunas.comp, aes(fill = COMUNAS), alpha = 0.5) + geom_sf(data=rivadavia.unida)
+
+# combinando barrios
+barrios.unidos<-st_combine(barrios)
+barrios.unidos
+plot(barrios.unidos)
+
+```
+
+
+Que avenidas cortan Rivadavia
+
+```{r}
+# Que avenidas cortan rivadavia
+NoRivadavia<-avenidas[avenidas$nom_mapa!="AV. RIVADAVIA",]
+test4<-st_intersects(NoRivadavia,rivadavia,sparse = FALSE)
+dim(test4)
+cuales.cortan<-apply(test4,1,sum)
+nombres.cortan<-NoRivadavia$nom_mapa[cuales.cortan>0]
+ggplot() + geom_sf(data=NoRivadavia[NoRivadavia$nom_mapa%in%nombres.cortan,],color="blue")  + geom_sf(data=rivadavia,color="red")
+
+```
+
+Que avenidas estan cerca Rivadavia
+
+```{r}
+# Que avenidas cortan rivadavia
+NoRivadavia<-avenidas[avenidas$nom_mapa!="AV. RIVADAVIA",]
+test7<-st_is_within_distance(NoRivadavia,rivadavia,dist=1000,sparse = FALSE)
+dim(test7)
+cuales.cortan<-apply(test7,1,sum)
+nombres.cortan<-NoRivadavia$nom_mapa[cuales.cortan>0]
+ggplot() + geom_sf(data=NoRivadavia[NoRivadavia$nom_mapa%in%nombres.cortan,],color="blue")  + geom_sf(data=rivadavia,color="red")
+
+```
+
+
+Que avenidas hay en Caballito
+
+```{r}
+test5<-st_intersects(barrios[barrios$BARRIO=="CABALLITO",],avenidas,sparse = FALSE)
+dim(test5)
+test5<-as.numeric(test5)
+head(test5)
+ggplot() + geom_sf(data=avenidas[test5>0,],color="blue")  + geom_sf(data = barrios[barrios$BARRIO=="CABALLITO",], aes(fill = BARRIO), alpha = 0.5)
+
+```
+
+
+Que barrios son contiguos a Caballito ?
+
+```{r}
+# falla al norte
+test6<-st_touches(barrios,barrios[barrios$BARRIO=="CABALLITO",],sparse = FALSE)
+# funciona ok
+test6<-st_is_within_distance(barrios,barrios[barrios$BARRIO=="CABALLITO",],dist=100,sparse = FALSE)
+dim(test6)
+test6<-as.numeric(test6)
+head(test6)
+ggplot() + geom_sf(data = barrios[barrios$BARRIO=="CABALLITO",], aes(fill = BARRIO), alpha = 0.5)  + geom_sf(data = barrios[test6>0,], aes(fill = BARRIO), alpha = 0.5)
+
+```
+
+
+Que deptos estan sobre avenidas ? LENTO !!!!
+
+```{r}
+# test8 <- st_is_within_distance(deptos.sf,avenidas,dist = 10,sparse = FALSE)
+# dim(test8)
+# cuales.deptos<-apply(test8,1,sum)
+# sum(cuales.deptos>0)
+# ggplot() + geom_sf(data = deptos.sf, size = 0.3,color="grey") + geom_sf(data = deptos.sf[cuales.deptos>0,], size = 0.5,color="blue") 
+
+```
+
+Cuantos deptos hay en cada barrio ?
+graficos con tmap
+
+```{r}
+require(tmap)
+deptos_in_barrios <- st_join(deptos.sf, barrios, join = st_within)
+deptos_in_barrios
+deptos_barrios_count <- count(as_tibble(deptos_in_barrios), BARRIO)
+deptos_barrios_count
+barrios_con_deptos <- left_join(barrios, deptos_barrios_count)
+barrios_con_deptos
+# 
+tmap_mode("view")
+tm_shape(barrios_con_deptos) +
+  tm_fill(
+    col = "n",
+    palette = "Greens",
+    style = "cont",
+    contrast = c(0.1, 1),
+    title = "Deptos por Barrio",
+    id = "boro_ct2010",
+    showNA = FALSE,
+    alpha = 0.8) +
+  tm_borders(col = "darkgray", lwd = 0.7)
+
+
+```
+
+Calculando la Capsula Convexa de los deptos
+
+```{r}
+# solo los deptos
+ggplot() + geom_sf(data=deptos.sf,size=0.1)
+deptos.sf.unidos<-st_union(deptos.sf)
+capsula<-st_convex_hull(deptos.sf.unidos)
+capsula
+ggplot()  + geom_sf(data=capsula,color="blue") + geom_sf(data=deptos.sf,size=0.1)
+
+```
+
+Calculemos las areas de los barrios
+
+```{r}
+barrios
+barrios2 <- barrios %>% mutate(AREA=st_area(barrios)) %>% arrange(-AREA)# agrego el area
+```
+
+Distancia entre barrios
+
+```{r}
+barrios2
+
+st_distance(barrios[barrios$BARRIO=="BELGRANO",],barrios[barrios$BARRIO=="FLORES",])
+st_distance(barrios[barrios$BARRIO=="CABALLITO",],barrios[barrios$BARRIO=="FLORES",])
+distan<-st_nearest_points(barrios[barrios$BARRIO=="BELGRANO",],barrios[barrios$BARRIO=="FLORES",])
+ggplot() + geom_sf(data = barrios, alpha = 0.5) + geom_sf(data = barrios[barrios$BARRIO=="FLORES",], aes(fill = BARRIO)) + geom_sf(data = barrios[barrios$BARRIO=="BELGRANO",], aes(fill = BARRIO)) + geom_sf(data=distan,col="blue")
+```
+
+
+Analisis de Espacio Verde Publico
+
+```{r}
+# cargo el shape de calles de CABA
+verde.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/espacio-verde-publico/")
+verde<-verde.comp[,"nombre"] %>% mutate(AreaVerde=st_area(verde.comp))
+# grafico con leaflet
+leaflet(verde) %>% addTiles() %>% addPolygons()
+#
+leaflet(verde.comp[verde.comp$BARRIO=="BOCA",]) %>% addTiles() %>% addPolygons()
+
+```
+
+Cual es el barrio con mas Espacio Verde ?
+
+```{r}
+leaflet() %>% addTiles() %>% addPolygons(data=barrios) %>% addPolygons(data=verde,color = "green")
+inter_ba_ve<-st_intersection(barrios2,verde)
+plot(inter_ba_ve[,"AreaVerde"])
+TablaVerde<-inter_ba_ve %>% group_by(BARRIO) %>% summarise(AreaVerde=sum(AreaVerde),AreaTotal=first(AREA)) %>% mutate(PropVerde=as.numeric(AreaVerde/AreaTotal))
+#
+ggplot(data=TablaVerde, aes(x=BARRIO, y=PropVerde)) +
+  geom_bar(stat="identity") + theme(axis.text = element_text(size = 6)) + coord_flip()
+```
+
+
+Estaciones de Subte
+
+```{r}
+subtes<- read_csv("/home/andresfaral/Dropbox/Estadistica Espacial/bocas-de-subte.csv") %>% rename(lon=long)
+subtes.sf <- subtes %>% st_as_sf(coords = c("lon", "lat"), crs = 4326)
+subtes.sf
+leaflet() %>% addTiles() %>% addCircles(data=subtes.sf)
+```
+
+Calculemos la distancia de cada depto a la estacion de subte mas cercana
+
+```{r}
+require(nngeo)
+cercanos<-st_nn(deptos.sf,subtes.sf,k=1,sparse = TRUE,returnDist = TRUE)
+distancias<-as.numeric(cercanos$dist)
+length(distancias)
+# agreguemos la variable "distancias" al dataset
+deptos.sf2<-deptos.sf %>% mutate(DistSub=distancias)
+# grafico de puntos marcando la distancia al subte
+# por corlor
+tm_shape(deptos.sf2) +
+     tm_dots("DistSub",size = 0.05, alpha = 0.3)
+# por tamaño
+tm_shape(deptos.sf2) +
+     tm_bubbles("DistSub",scale = 1, alpha = 0.3)
+
+```
+
+
+Generando Buffers de Objetos
+
+```{r}
+# buffer para Caballito
+caballito<-barrios[barrios$BARRIO=="CABALLITO",]
+caballito.buf <- st_buffer(caballito, dist=0.001) # cuidado: dist en grados !!!! 
+tm_shape(caballito) + tm_borders("green") +
+tm_shape(caballito.buf) + tm_borders("blue") +
+tm_layout(frame = F)
+
+# buffer para Rivadavia
+rivadavia.buf <- st_buffer(rivadavia.unida, dist=0.001) # cuidado: dist en grados !!!! 
+plot(rivadavia.buf,col="green")
+plot(rivadavia.unida,add=T,col="blue")
+#
+tm_shape(rivadavia.unida) + tm_lines(col="green") + tm_shape(rivadavia.buf,col="green") + tm_polygons(col="blue",alpha = 0.1)
+
+```
+
+
+Calculo de raster de Precio Promedio
+
+```{r}
+# Agrego Raster library
+require(raster)
+# raster vacio
+coordenadas<-st_coordinates(deptos.sf2)
+lon<-coordenadas[,1]
+loat<-coordenadas[,2]
+pm2<-deptos.sf2$pm2
+ras<-raster(nrows=100, ncols=100, xmn=min(lon), xmx=max(lon),ymn=min(lat),ymx=max(lat))
+# raster con precios promedios
+colores <- c('red', 'blue', 'green') # Paleta de colores
+at <- seq(0,8000,length.out = 20) # puntos de corte de categorias
+cb <- colorBin(palette = colores, bins = at, domain = at,na.color="#00000000") # colores
+ras.pm2<-rasterize(coordenadas,ras,field=pm2,fun=mean) # raster de valores promedios de pm2.med
+leaflet() %>% addTiles() %>% addRasterImage(ras.pm2,opacity = 0.75,colors = cb) %>% addLegend(pal = cb, values = at) # graf leaflet + raster + leyenda
+```
+
+Manipulaciones basicas con rasters
+
+```{r}
+qtm(ras.pm2)
+qtm(ras.pm2>3000)
+```
+
+### Point Pattern Analysis
+
+```{r}
+require(spatstat)
+require(maptools)
+# cargo provincias y consigo el limite de CABA 
+provincia.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/Provincia/")
+caba.ch<-st_convex_hull(provincia.comp[1,]$geometry)
+coo<-st_coordinates(caba.ch)[-35,1:2]
+caba.win<-owin(poly=list(x=rev(coo[,1]),y=rev(coo[,2])))
+plot(caba.ch)
+plot(caba.win)
+# convierto deptos a ppp
+deptos.ppp <- as.ppp(st_coordinates(deptos.sf), caba.win)
+#deptos.ppp <- as.ppp(st_coordinates(deptos.sf), st_convex_hull(st_union(deptos.sf)))
+marks(deptos.ppp)
+window(deptos.ppp)
+plot(deptos.ppp,cex=0.3)
+```
+
+Analisis de Concentracion
+
+```{r}
+# Quadrat Count
+Q <- quadratcount(deptos.ppp, nx= 10, ny=10)
+plot(deptos.ppp, pch=20, cols="grey70", main=NULL)  # Plot points
+plot(Q, add=TRUE)  # Add quadrat grid
+# Quadrat Density
+Q.d <- intensity(Q)
+plot(intensity(Q, image=TRUE), main=NULL, las=1)  # Plot density raster
+plot(deptos.ppp[sample(1:27089,200)], pch=1, cex=0.01, col="grey", add=TRUE)  # Add points
+plot(caba.ch,add=T)
+```
+
+Test de uniformidad de distribucion (ridiculo en este caso)
+
+```{r}
+QT <- quadrat.test(deptos.ppp, nx=4, ny=4)
+QT
+plot(QT)
+```
+
+Ajustamos un modelo para la intensidad
+
+```{r}
+# modelo homogeneo
+ajus1<-ppm(deptos.ppp~1)
+ajus1
+# modelo con tendencia espacial lineal
+ajus2<-ppm(deptos.ppp~x+y)
+ajus2
+plot(ajus2,pause=FALSE,superimpose = FALSE)
+plot(ajus2,pause=FALSE,how="persp", theta=-30,phi=40,d=4)
+plot(ajus2,pause=FALSE,how="contour", theta=-30,phi=40,d=4)
+pred2<-predict(ajus2)
+plot(pred2)
+```
+
+No lieanl
+
+```{r}
+# modelo con tendencia espacial no lineal
+require(splines)
+ajus3<-ppm(deptos.ppp~bs(x,df=3)+bs(y,df=5),Poisson())
+ajus3
+plot(ajus3,,pause=FALSE,superimpose = FALSE)
+pred3<-predict(ajus3)
+plot(pred3)
+```
+
+Con covariable
+
+```{r}
+# agrego covariable precio
+deptos.ppp.pre.cat<-deptos.ppp
+marks(deptos.ppp.pre.cat)<-as.factor(deptos.sf$precio>median(deptos.sf$precio))
+ajus4<-ppm(deptos.ppp.pre.cat~marks*bs(x,df=4)*bs(y,df=4),Poisson())
+ajus4
+plot(ajus4,pause=FALSE,superimpose = FALSE)
+pred4<-predict(ajus4)
+plot(pred4)
+
+```
+
+
+Con covariable continua: distancia a estaciones de subtes
+
+```{r}
+# convierto deptos a ppp
+subtes.ppp <- as.ppp(st_coordinates(subtes.sf), caba.win)
+Z <- distmap(subtes.ppp)
+plot(Z)
+#
+
+ajus5<-ppm(deptos.ppp~Z+bs(x,df=3)*bs(y,df=3),Poisson())
+ajus5
+plot(ajus5,pause=FALSE,superimpose = FALSE)
+pred5<-predict(ajus5)
+plot(pred5)
+# Solo Z
+lurking(ajus5, Z)
+#
+ajus6<-ppm(deptos.ppp~Z,Poisson())
+ajus6
+plot(ajus6,pause=FALSE,superimpose = FALSE)
+pred6<-predict(ajus6)
+plot(pred6)
+#
+ajus7<-ppm(deptos.ppp~polynom(Z,2) ,Poisson())
+ajus7
+plot(ajus7,pause=FALSE,superimpose = FALSE)
+pred7<-predict(ajus7)
+plot(pred7)
+plot(effectfun(ajus6))
+```
+
+
+Comparacion de modelos
+
+```{r}
+diagnose.ppm(ajus1, which="smooth")
+diagnose.ppm(ajus2, which="smooth")
+diagnose.ppm(ajus3, which="smooth")
+diagnose.ppm(ajus6, which="smooth")
+diagnose.ppm(ajus7, which="smooth")
+#
+anova(ajus2,ajus1,test="Chi")
+anova(ajus3,ajus2,test="Chi")
+anova(ajus5,ajus3,test="Chi")
+```
+
+
+
+Creando un raster de densidad de concentracion
+
+```{r}
+# 
+K1 <- density(deptos.ppp) # Using the default bandwidth
+plot(K1, main=NULL, las=1)
+contour(K1, add=TRUE)
+#
+K1 <- density(deptos.ppp,sigma=0.003) # Using the default bandwidth
+plot(K1, main=NULL, las=1)
+contour(K1, add=TRUE)
+
+```
+
+Analisis de Vecinos mas Cercanos
+
+```{r}
+mean(nndist(deptos.ppp, k=1))
+mean(nndist(deptos.ppp, k=2))
+ANN <- apply(nndist(deptos.ppp, k=1:100),2,FUN=mean)
+plot(ANN ~ eval(1:100), type="l", main=NULL, las=1)
+```
+
+
+Funcion K de Ripley
+
+```{r}
+K <- Kest(deptos.ppp)
+plot(K, main=NULL, las=1, legendargs=list(cex=0.8, xpd=TRUE, inset=c(0.01, 0) ))
+L <- Lest(deptos.ppp, main=NULL)
+plot(L, main=NULL, las=1, legendargs=list(cex=0.8, xpd=TRUE, inset=c(0.01, 0) ))
+```
+
+
+Funcion G
+
+```{r}
+#  Number of points
+n <- deptos.ppp$n
+
+#  We want to generate completely spatially random point patterns to compare against the observed
+ex <- expression( runifpoint( n , win = caba.win))
+
+#  Reproducible simulation
+set.seed(1)
+
+# Compute a simulation envelope using Gest, which estimates the nearest neighbour distance distribution function G(r)
+res <- envelope( deptos.ppp , Gest , nsim = 99, simulate = ex ,verbose = FALSE, savefuns = TRUE )
+
+#  Plot
+plot(res)
+```
+
+Marked Point Pattern
+
+```{r}
+set.seed(1)
+marks(deptos.ppp)
+cuales<-sample(1:27089,100)
+deptos.ppp.pre<-deptos.ppp[cuales]
+marks(deptos.ppp.pre)<-deptos.sf$precio[cuales]
+marks(deptos.ppp.pre)
+plot(deptos.ppp.pre)
+```
+
+
+Autocorrelacion Espacial
+
+```{r}
+#set.seed(1)
+require(spdep)
+coo1<-st_coordinates(deptos.sf)
+cuales<-sample(1:nrow(coo1),1000)
+coo2<-coo1[cuales,]
+
+distan<-(dist(coo2))^0.5
+w <- 1/as.matrix(distan)
+sum(w==Inf)
+w[w==Inf]<-0
+diag(w) <- 0
+summary(as.numeric(w))
+eltest<-moran.test(deptos.sf$precio[cuales],mat2listw(w),randomisation = TRUE)
+round(eltest$estimate,4)
+(eltest$estimate[1]-eltest$estimate[2])/sqrt(eltest$estimate[3])
+eltest
+# Noran Scatter Plot
+moran.plot(deptos.sf$precio[cuales],mat2listw(w))
+```
+
+
+
+Celdas de Voronoi
+
+```{r}
+set.seed(1)
+marks(deptos.ppp)
+cuales<-sample(1:27089,100)
+deptos.ppp.pre<-deptos.ppp[cuales]
+marks(deptos.ppp.pre)<-deptos.sf$precio[cuales]
+tese<-dirichlet(deptos.ppp.pre)
+th  <-  as(tese, "SpatialPolygons")
+plot(th)
+plot(deptos.ppp.pre,add=T)
+```
+
+Interpolacion Espacial
+
+```{r}
+set.seed(1)
+marks(deptos.ppp)
+cuales<-sample(1:27089,100)
+deptos.ppp.pre<-deptos.ppp[cuales]
+marks(deptos.ppp.pre)<-deptos.sf$precio[cuales]
+deptos.ppp.pre.spdf<-as.SpatialPointsDataFrame.ppp(deptos.ppp.pre)
+#
+grd              <- as.data.frame(spsample(deptos.ppp.pre.spdf, "regular", n=50000))
+names(grd)       <- c("X", "Y")
+coordinates(grd) <- c("X", "Y")
+gridded(grd)     <- TRUE  # Create SpatialPixel object
+fullgrid(grd)    <- TRUE  # Create SpatialGrid object
+
+# Add P's projection information to the empty grid
+proj4string(deptos.ppp.pre.spdf) <- proj4string(deptos.ppp.pre.spdf) # Temp fix until new proj env is adopted
+proj4string(grd) <- proj4string(deptos.ppp.pre.spdf)
+# Interpolate the grid cells using a power value of 2 (idp=2.0)
+P.idw <- gstat::idw(marks ~ 1, deptos.ppp.pre.spdf, newdata=grd, idp=2.0)
+plot(P.idw)
+plot(deptos.ppp.pre.spdf,add=T)
+plot(caba.win,add=T)
+```
+
+
+### Moelado del precio de los Depaertamentos
+
+Moelo lineal basico
+
+```{r}
+plot(deptos.sf$sup,deptos.sf$precio)
+ajus<-lm(precio~sup+baths+poly(lat,3)+poly(lon,3)+DistSub,data=deptos.sf2)
+summary(ajus)
+```
+
+Modelo GWR (Geographically Weighted Regression)

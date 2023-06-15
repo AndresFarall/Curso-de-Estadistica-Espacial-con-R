@@ -1,0 +1,54 @@
+---
+title: "Independencia entre Dos Tipos de Eventos"
+output: html_notebook
+---
+
+Test para detectar diferencias entre procesos espaciales de distintos tipos de eventos. Kendall entre las distancias de un evento aleatorio a un evento de tipo A Y a un evento de tipo B.
+
+# Ejemplo de juguete
+
+```{r}
+require(spatstat.core)
+set.seed(1)
+cant<-20
+sim.BPP<-runifpoint(cant)
+# Procesos distintos
+clase<-ifelse(sim.BPP$x>0.5,"B","A")
+# Procesos identicos
+#clase<-sample(c("B","A"),cant,replace = T)
+marks(sim.BPP)<-clase
+plot(sim.BPP,cols=c("green","blue"))
+
+#
+```
+
+Distancias
+
+```{r}
+x<-sim.BPP$x
+y<-sim.BPP$y
+xA<-sim.BPP$x[sim.BPP$marks=="A"] # coord x de A
+yA<-sim.BPP$y[sim.BPP$marks=="A"] # coord y de A
+xB<-sim.BPP$x[sim.BPP$marks=="B"] # coord x de B
+yB<-sim.BPP$y[sim.BPP$marks=="B"] # coord y de B
+DA<-rep(NA,cant)
+DB<-rep(NA,cant)
+
+for (i in 1:cant)
+{
+distA<-sqrt((x[i]-xA)^2+(y[i]-yA)^2)
+mindistA<-min(distA[distA>0])
+distB<-sqrt((x[i]-xB)^2+(y[i]-yB)^2)
+mindistB<-min(distB[distB>0])
+DA[i]<-mindistA  
+DB[i]<-mindistB
+}
+plot(DA,DB)
+```
+
+Estadistico
+
+```{r}
+cor.test(DA, DB, method="kendall") 
+```
+

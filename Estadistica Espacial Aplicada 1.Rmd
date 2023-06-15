@@ -1,0 +1,147 @@
+---
+title: "Estadistica Espacial Aplicada"
+author: "Andres Farall"
+date: "18 de Agosto de 2021"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+  html_notebook:
+    theme: lumen
+    toc: yes
+    toc_float: yes
+subtitle: Ejemplificacion con la base de Properati
+---
+
+
+
+###  Lectura del dataset y su estructura
+
+```{r}
+# leo el archivo ar_properties 
+library(readr) # libreria con la funcion read_csv
+datos1a <- read_csv("ar_properties.csv") # Acá completen con su propio PATH al archivo
+datos1a # veo la base
+```
+
+### Aplicando filtros
+
+Se seleccionan aquellos registros que pertenecen a Argentina y Capital Federal, cuyo precio esta en dolares (USD), el tipo de propiedad corresponde a Departamento y el tipo de operacion sea Venta. 
+
+```{r}
+library(tidyverse) # carga varios paquetes: dplyr, ggplot2, purr, rtingr, etc.
+datos1b <- datos1a %>% 
+                   # Me quedo con los que pertenecen a Argentina y Capital Federal
+            filter(l1 == "Argentina", 
+                   l2 == "Capital Federal", 
+                   # cuyo precio este en dolares 
+                   currency == "USD", 
+                   # propiedad tipo Departamento
+                   property_type %in% c("Departamento"),
+                   # operaciones de venta
+                   operation_type == "Venta") %>% select(id,l3,surface_covered,price,lat,lon,rooms,bathrooms,bedrooms) %>% na.omit() %>% mutate(precio=price,barrio=l3,sup=surface_covered,pm2=precio/sup,rooms,bathrooms,bedrooms) %>% na.omit()
+# chequeo si el filtro se refleja correctamente en mi nuevo dataset datos1b
+datos1b 
+attach(datos1b) # pongo las variables en memoria
+```
+
+Cargo las librerias basicas para trabajar con datos espaciales
+
+```{r}
+library(terra)
+library(sf)
+library("leaflet")
+```
+
+### Datos Vectoriales
+
+## Cargo depto como Puntos
+
+```{r}
+lonlat <- cbind(datos1b$lon, datos1b$lat)
+df <- data.frame(ID=datos1b$id, datos1b$sup)
+crdref <- "+proj=longlat +datum=WGS84"
+deptos <- vect(lonlat, atts=df, crs=crdref) # with terra
+deptos.sf <- sf::st_as_sf(pts) # conversion to sf
+#plot(pts)
+plot(deptos.sf)
+leaflet(deptos.sf) %>% addTiles() %>% addCircleMarkers(radius=0.2)
+
+```
+
+## cargo calles de CABA
+
+
+```{r}
+calles.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/callejero/")
+calles.comp
+plot(calles.comp)
+barrios$geometry
+class(barrios)
+plot(barrios[1:5,])
+print(barrios.comp, n = 3)
+```
+
+## Carga de Barrios CABA
+
+```{r}
+barrios.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/barrios/")
+barrios.comp
+barrios<-barrios.comp[1]
+barrios
+barrios$geometry
+class(barrios)
+plot(barrios[1:5,])
+print(barrios.comp, n = 3)
+```
+
+## Carga de Comunas CABA
+
+```{r}
+comunas.comp <- st_read("/home/andresfaral/Dropbox/Estadistica Espacial/comunas/")
+comunas.comp
+plot(comunas.comp)
+comunas<-comunas.comp[1]
+plot(comunas)
+
+```
+
+Grafico de deptos, comunas y barrios
+
+```{r}
+# deptos y barrios
+leaflet(deptos.sf) %>% addTiles() %>% addCircleMarkers(radius=0.2) %>% addPolygons(data=barrios,color = "green")
+# agrego comunas
+leaflet(deptos.sf) %>% addTiles() %>% addCircleMarkers(radius=0.2) %>% addPolygons(data=barrios,color = "green") %>% addPolygons(data=comunas,color = "red")
+
+```
+
+Que depto esta en que barrio: puntos en poligonos
+
+```{r}
+deptos_in_barrios <- st_join(deptos.sf, barrios, join = st_within)
+deptos_in_barrios
+deptos_barrios_count <- count(as_tibble(deptos_in_barrios), BARRIO)
+deptos_barrios_count
+barrios_con_deptos <- left_join(barrios, deptos_barrios_count)
+barrios_con_deptos
+```
+
+grafico
+
+```{r}
+require(tmap)
+tmap_mode("view")
+tm_shape(barrios_con_deptos) +
+  tm_fill(
+    col = "n",
+    palette = "Greens",
+    style = "cont",
+    contrast = c(0.1, 1),
+    title = "Deptos por Barrio",
+    id = "boro_ct2010",
+    showNA = FALSE,
+    alpha = 0.8) +
+  tm_borders(col = "darkgray", lwd = 0.7)
+```
+
